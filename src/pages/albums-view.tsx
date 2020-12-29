@@ -1,14 +1,14 @@
 import Masonry from 'react-masonry-css';
 import styled from 'styled-components';
 import { useApi } from '../hooks';
-import { AuthedImage } from './';
+import { AuthedImage } from '../components';
 
 const camoUrl = 'https://i.redd.it/2bkwu2l10n331.jpg';
 
 type Pic = {
   uuid: string,
   title: string,
-  blobUuid: string,
+  url: string,
 }
 type Album = {
   uuid: string,
@@ -48,7 +48,7 @@ const AlbumsView = ({ className = '' }: AlbumsViewProps) => {
                   {camoUrl ? 'Camo #URL' :album.title}
                 </div>
                 <AuthedImage
-                  url={camoUrl || `blobs/raw/${album.pics[0].blobUuid}`}
+                  url={camoUrl || `${album.pics[0].url}`}
                 />
               </div>
             ))}
