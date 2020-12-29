@@ -14,16 +14,13 @@ type Album = {
   uuid: string,
   title: string,
   picsCount: number,
-  pics: Pic[]
-}
-type AlbumResponse = {
-  albums: Album[],
+  albumPics: Pic[]
 }
 type AlbumsViewProps = {
   className?: string,
 }
 const AlbumsView = ({ className = '' }: AlbumsViewProps) => {
-  const { data, isLoading } = useApi<AlbumResponse>({ url: 'albums?take=100', initRun: true })
+  const { data: albums, isLoading } = useApi<Album[]>({ url: 'albums?take=100', initRun: true })
 
   return (
     <div className={className}>
@@ -40,7 +37,7 @@ const AlbumsView = ({ className = '' }: AlbumsViewProps) => {
           }}
           className="my-masonry-grid"
           columnClassName="my-masonry-grid_column">
-            {data?.albums.map(album => (
+            {albums?.map(album => (
               <div key={album.uuid} style={{
                 width: '300px',
               }}>
@@ -48,7 +45,7 @@ const AlbumsView = ({ className = '' }: AlbumsViewProps) => {
                   {camoUrl ? 'Camo #URL' :album.title}
                 </div>
                 <AuthedImage
-                  url={camoUrl || `${album.pics[0].url}`}
+                  url={camoUrl || `${album.albumPics[0].url}`}
                 />
               </div>
             ))}
