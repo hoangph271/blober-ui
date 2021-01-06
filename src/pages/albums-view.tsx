@@ -6,12 +6,12 @@ import { AuthedImage } from '../components';
 const camoUrl = 'https://i.redd.it/2bkwu2l10n331.jpg';
 
 type Pic = {
-  uuid: string,
+  _id: string,
   title: string,
   url: string,
 }
 type Album = {
-  uuid: string,
+  _id: string,
   title: string,
   picsCount: number,
   albumPics: Pic[]
@@ -38,11 +38,11 @@ const AlbumsView = ({ className = '' }: AlbumsViewProps) => {
           className="my-masonry-grid"
           columnClassName="my-masonry-grid_column">
             {albums?.map(album => (
-              <div key={album.uuid} style={{
+              <div key={album._id} style={{
                 width: '300px',
               }}>
                 <div>
-                  {camoUrl ? 'Camo #URL' :album.title}
+                  {camoUrl ? `Camo #${album._id}` : album.title}
                 </div>
                 <AuthedImage
                   url={camoUrl || `${album.albumPics[0].url}`}
