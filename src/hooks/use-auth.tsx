@@ -24,7 +24,6 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
     localStorage.removeItem(STORAGE_TOKEN_KEY)
   }
 
-
   const value: AuthContextValue = {
     token,
     storeToken,
@@ -39,5 +38,5 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   )
 }
 export const useAuth = () => {
-  return useContext<AuthContextValue>(AuthContext)
+  return useContext<AuthContextValue>(AuthContext) || {}
 }

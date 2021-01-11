@@ -4,13 +4,16 @@ import { useApi, useAuth } from "../hooks"
 export const LoginForm = () => {
   const [username, setUsername] = useState('username')
   const [password, setPassword] = useState('password')
-  const { startFetching, data } = useApi({ url: 'auth', method: 'POST' })
+  const { fetchApi, data } = useApi({ url: 'auth', method: 'POST' })
   const { storeToken } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    startFetching({ username, password })
+    fetchApi({
+      url: 'auth',
+      body: JSON.stringify({ username, password }),
+    })
   }
 
   useEffect(() => {

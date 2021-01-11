@@ -3,7 +3,7 @@ import { useAuth } from './use-auth';
 
 const API_ROOT = 'http://localhost:3000'
 const useApiState = <T extends any>(initRun?: boolean) => {
-  const [isLoading, setIsLoading] = useState(initRun)
+  const [isLoading, setIsLoading] = useState(Boolean(initRun))
   const [data, setData] = useState<T | null>(null)
   const [error, setError] = useState<Error | null>(null)
 
@@ -69,18 +69,32 @@ export const useApi = <T extends any>(params: useApiParams) => {
 
   const { createOptions } = useFetchOptions({ method, withAuth })
 
-  const startFetching = useCallback(async (body?: string | object) => {
+  const fetchApi = useCallback(async (overloadParams: useApiParams): Promise<{ data: T | null, error: T | null }> => {
     try {
+      const { body, url } = {
+        ...params,
+        ...overloadParams,
+      }
+
       setIsLoading(true)
 
-      const res = await fetch(`${API_ROOT}/${url}`, createOptions({ body, method }))
+      const res = await fetch(`${API_ROOT}/${url}`, createOptions({
+        body,
+        method
+      }))
       const data = await (raw ? res.blob() : res.json())
 
+      if (!res.ok) {
+        setError(data)
+        return { data: null, error: data }
+      }
+
       setData(data)
-      return data
+      return { data, error: null }
     } catch (error) {
       console.error(error)
       setError(error)
+      return { data: null, error }
     } finally {
       setIsLoading(false)
     }
@@ -91,14 +105,14 @@ export const useApi = <T extends any>(params: useApiParams) => {
 
     if (initRun) {
       setStarted(true)
-      startFetching()
+      fetchApi(params)
     }
-  }, [initRun, startFetching, setStarted, started])
+  }, [initRun, fetchApi, setStarted, started])
 
   return {
     isLoading,
     data,
     error,
-    startFetching,
+    fetchApi,
   }
 }
