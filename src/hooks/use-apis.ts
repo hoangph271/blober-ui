@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { useAuth } from "."
+import { API_ROOT } from "../constants"
 
 export enum ApiStates {
   NOT_STARTED,
@@ -9,7 +10,17 @@ export enum ApiStates {
   ERROR,
 }
 
-const API_ROOT = 'http://192.168.0.102:3000'
+const parseResponseData = async (res: Response) => {
+  const contentType = res.headers.get('content-type');
+  switch (true) {
+    case contentType?.startsWith('application/json;'): {
+      return res.json()
+    }
+    default: {
+      return await res.blob()
+    }
+  }
+}
 
 type useGetParams = {
   url: string,
@@ -42,15 +53,8 @@ export const useGet = <T extends any>(params: useGetParams) => {
           throw new Error(await res.text())
         }
 
-        const contentType = res.headers.get('content-type');
-        switch (true) {
-          case contentType?.startsWith('application/json;'): {
-            return setData(await res.json())
-          }
-          default: {
-            setData(await res.blob() as T)
-          }
-        }
+        setData(await parseResponseData(res))
+
         setApiState(ApiStates.FINISHED)
       })
       .catch((error: Error) => {
@@ -60,6 +64,64 @@ export const useGet = <T extends any>(params: useGetParams) => {
   }, [getApi, apiState])
 
   const startFetching = useCallback(() => setApiState(ApiStates.STARTED), [])
+
+  return {
+    isLoading: apiState === ApiStates.RUNNING,
+    startFetching,
+    apiState,
+    error,
+    data,
+  }
+}
+
+type HttpBody = string | Blob | ArrayBufferView | ArrayBuffer | FormData | URLSearchParams | ReadableStream<Uint8Array> | null
+type usePostParams = useGetParams & {
+  body?: HttpBody,
+}
+export const usePost = <T extends any>(params: usePostParams) => {
+  const [apiState, setApiState] = useState<ApiStates>(params.initRun ? ApiStates.STARTED : ApiStates.NOT_STARTED)
+  const [error, setError] = useState<Error | null>(null);
+  const [data, setData] = useState<T | null>(null);
+  const [body, setBody] = useState(params.body)
+  const { token } = useAuth();
+
+  const postApi = useCallback(async () => {
+    const { url } = params
+
+    return fetch(`${API_ROOT}/${url}`, {
+      method: 'POST',
+      headers: {
+        ...token && { 'Authorization': `Bearer ${token}` },
+      },
+      body,
+    })
+  }, [params, token, body])
+
+  useEffect(() => {
+    if (apiState !== ApiStates.STARTED) return;
+
+    setApiState(ApiStates.RUNNING)
+
+    postApi()
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error(await res.text())
+        }
+
+        setData(await parseResponseData(res))
+
+        setApiState(ApiStates.FINISHED)
+      })
+      .catch((error: Error) => {
+        setError(error)
+        setApiState(ApiStates.ERROR)
+      })
+  }, [postApi, apiState])
+
+  const startFetching = useCallback((body?: HttpBody) => {
+    setBody(body)
+    setApiState(ApiStates.STARTED)
+  }, [])
 
   return {
     startFetching,

@@ -31,7 +31,6 @@ function App({ className = '' }: AppProps) {
   );
 }
 
-
 const StyledApp = styled(App)`
   width: 100vw;
   overflow: hidden;

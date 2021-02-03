@@ -1,26 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import Masonry from 'react-masonry-css';
 import styled from 'styled-components';
-import { AuthedImage } from '../../components';
 
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
-import { Album, ListResponseWithCount } from '../../interfaces';
+import { Album, ArrayResponse } from '../../interfaces';
 import { Link, Redirect, useLocation } from 'react-router-dom';
 import { useGet } from '../../hooks/use-apis';
 import Loader from 'react-loader-spinner';
+import { API_ROOT } from '../../constants';
 
 const camoUrl = '';
-// const camoUrl = 'https://i.redd.it/2bkwu2l10n331.jpg';
 
 type AlbumsListProps = {
   className?: string,
-}
-const breakpointCols = {
-  'default': 5,
-  '1550': 4,
-  '1250': 3,
-  '950': 2,
-  '650': 1
 }
 const usePageParam = () => {
   const { search } = useLocation()
@@ -32,7 +23,7 @@ const usePageParam = () => {
     setPage(Number.parseInt(pageParam))
   }, [search])
 
-  const { data, error, startFetching } = useGet<ListResponseWithCount<Album>>({ url: 'albums?take=0&skip=0' })
+  const { data, error, startFetching } = useGet<ArrayResponse<Album>>({ url: 'albums?take=0&skip=0' })
   useEffect(() => {
     if (Number.isNaN(page)) {
       startFetching()
@@ -42,7 +33,6 @@ const usePageParam = () => {
   useEffect(() => {
     if (error) {
       console.error(error);
-      // TODO: HandleError
       setPage(1)
       return;
     }
@@ -55,13 +45,13 @@ const usePageParam = () => {
 
   return { page }
 }
-const PAGE_LIMIT = 8
+const PAGE_LIMIT = 12
 const AlbumsList = styled(({ className = '' }: AlbumsListProps) => {
   const { search } = useLocation()
   const { page } = usePageParam();
   const [pageCount, setPageCount] = useState(0)
   const [albums, setAlbums] = useState<Album[]>([])
-  const { data, startFetching } = useGet<ListResponseWithCount<Album>>({
+  const { data, startFetching } = useGet<ArrayResponse<Album>>({
     url: `albums?take=${PAGE_LIMIT}&skip=${(page - 1) * PAGE_LIMIT}`,
   })
 
@@ -95,12 +85,9 @@ const AlbumsList = styled(({ className = '' }: AlbumsListProps) => {
 
   return (
     <div className={className}>
-      <Masonry
-        breakpointCols={breakpointCols}
-        className="my-masonry-grid albums-list"
-        columnClassName="my-masonry-grid_column">
+      <div className="albums">
         {albums.map(album => <AlbumCard key={album._id} album={album} />)}
-      </Masonry>
+      </div>
       {pageCount && (
         <Pager
           className="pager"
@@ -112,6 +99,15 @@ const AlbumsList = styled(({ className = '' }: AlbumsListProps) => {
   )
 })`
   max-height: 100vh;
+
+  .albums {
+    display: flex;
+    flex-grow: 1;
+    overflow-y: scroll;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+  }
 `
 type PagerProps = {
   pageCount: number,
@@ -160,27 +156,6 @@ const Pager = styled((props: PagerProps) => {
     background-color: gray;
   }
 `
-// type BottomLoaderType = {
-//   isLoading: boolean,
-//   onLoadMore(): void,
-// }
-// const BottomLoader = (props: BottomLoaderType) => {
-//   const { isLoading } = props
-//   const indicatorRef = useRef<HTMLDivElement>(null)
-
-//   return (
-//     <div ref={indicatorRef}>
-//       {isLoading && (
-//         <Loader
-//           type="Oval"
-//           color="#00BFFF"
-//           height="2.6rem"
-//           width="2.6rem"
-//         />
-//       )}
-//     </div>
-//   )
-// }
 
 type AlbumCardProps = {
   album: Album
@@ -188,14 +163,17 @@ type AlbumCardProps = {
 const AlbumCard = ({ album }: AlbumCardProps) => {
   const { _id, title, pics } = album
   return (
-    <div style={{ width: '300px' }}>
+    <div
+      className="album-card"
+      style={{
+        width: '300px',
+        height: '400px',
+        backgroundImage: `url(${API_ROOT}/blobs/raw/${pics[0]?.blobId})`,
+      }}
+    >
       <Link className="album-title" to={`albums/${_id}`}>
         {camoUrl ? `Camo #${_id}` : title}
       </Link>
-      <AuthedImage
-        className="album-avatar"
-        url={camoUrl || `blobs/raw/${pics[0].blobId}`}
-      />
     </div>
   )
 }
@@ -211,24 +189,20 @@ const StyledAlbumview = styled(AlbumsList)`
     overflow-y: scroll;
   }
 
-  .my-masonry-grid {
-    display: flex;
-    width: 100%;
-    max-width: 100%;
-  }
-  .my-masonry-grid_column {
-    background-clip: padding-box;
-  }
+  .album-card {
+    position: relative;
+    margin: 0.4rem;
 
-  .my-masonry-grid_column > div {
-    margin: auto;
-  }
-
-  .album-title {
-    height: 1.6rem;
-  }
-  .album-avatar {
-    max-height: calc(100vh - 1.6rem);
+    .album-title {
+      color: black;
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      background-color: rgba(255, 255, 255, 0.65);
+      padding: 0.2rem 0;
+      bottom: 0;
+      top: unset;
+    }
   }
 `
 

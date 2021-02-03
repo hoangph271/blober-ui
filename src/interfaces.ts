@@ -1,7 +1,7 @@
 export type OptionalClassname = {
   className?: string,
 }
-export type ListResponseWithCount<T> = {
+export type ArrayResponse<T> = {
   itemCount: number,
   items: T[],
 }

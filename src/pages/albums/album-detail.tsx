@@ -1,6 +1,6 @@
 import Loader from "react-loader-spinner"
 import { useParams } from "react-router-dom"
-import { useApi } from "../../hooks"
+import { useGet } from "../../hooks/use-apis"
 import { Album } from "../../interfaces"
 
 type AlbumDetailRouteParams = {
@@ -8,7 +8,7 @@ type AlbumDetailRouteParams = {
 }
 export const AlbumDetail = () => {
   const { id } = useParams<AlbumDetailRouteParams>()
-  const { isLoading, data } = useApi<Album>({ url: `albums/${id}`, initRun: true })
+  const { isLoading } = useGet<Album>({ url: `albums/${id}`, initRun: true })
 
   if (isLoading) return (
     <Loader

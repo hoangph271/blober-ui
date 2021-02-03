@@ -1,19 +1,20 @@
 import { useEffect, useState } from "react"
-import { useApi, useAuth } from "../hooks"
+import { useAuth } from "../hooks"
+import { usePost } from "../hooks/use-apis"
 
 export const LoginForm = () => {
   const [username, setUsername] = useState('username')
   const [password, setPassword] = useState('password')
-  const { fetchApi, data } = useApi({ url: 'auth', method: 'POST' })
+  const { startFetching, data } = usePost({ url: 'auth' })
   const { storeToken } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    fetchApi({
+    startFetching(JSON.stringify({
       url: 'auth',
       body: JSON.stringify({ username, password }),
-    })
+    }))
   }
 
   useEffect(() => {
