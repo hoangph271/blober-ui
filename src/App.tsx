@@ -1,21 +1,32 @@
+import React from 'react'
 import styled from 'styled-components';
+import { Redirect, BrowserRouter, Switch, Route } from 'react-router-dom';
 import { AuthContextProvider, useAuth } from './hooks';
-import { LoginForm } from './components';
-import { AlbumsView } from './pages';
+import * as Views from './pages';
+
+const withAuthRequired = (View: React.ComponentType<any>) => {
+  return () => {
+    const { isAuthed } = useAuth()
+
+    return isAuthed ? <View /> : <Redirect to="login" />
+  }
+}
 
 type AppProps = {
   className?: string,
 }
 function App({ className = '' }: AppProps) {
-  const { isAuthed } = useAuth()
 
   return (
     <div className={`App ${className}`}>
-      {isAuthed ? (
-        <AlbumsView />
-      ) : (
-        <LoginForm />
-      )}
+      <BrowserRouter>
+        <Switch>
+          <Route path="/albums/:id" component={withAuthRequired(Views.AlbumDetail)} />
+          <Route path="/albums" component={withAuthRequired(Views.AlbumsList)} />
+          <Route path="/login" component={Views.Login} />
+          <Route path="/" component={() => '404 | Not Found' as unknown as JSX.Element} />
+        </Switch>
+      </BrowserRouter>
     </div>
   );
 }
@@ -23,6 +34,7 @@ function App({ className = '' }: AppProps) {
 
 const StyledApp = styled(App)`
   width: 100vw;
+  overflow: hidden;
 `;
 
 const AppRoot = () => {

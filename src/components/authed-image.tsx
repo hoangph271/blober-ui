@@ -1,15 +1,18 @@
+import styled from "styled-components"
 import { useApi } from "../hooks"
 
 type AuthedImageProps = {
   url: string,
-  alt?: string
+  alt?: string,
+  className?: string,
 }
-export const AuthedImage = ({ url, alt = '' }: AuthedImageProps) => {
+const AuthedImage = ({ url, alt = '', className = '' }: AuthedImageProps) => {
   const { data } = useApi<Blob>({ url, raw: true, initRun: !url.startsWith('http') })
 
   if (url.startsWith('http')) {
     return (
-      <div 
+      <div
+        className={className}
         style={{
           backgroundSize: 'cover',
           backgroundPosition: 'center',
@@ -38,3 +41,9 @@ export const AuthedImage = ({ url, alt = '' }: AuthedImageProps) => {
     />
   )
 }
+
+const StyledAuthedImage = styled(AuthedImage)`
+
+`
+
+export { StyledAuthedImage as AuthedImage }

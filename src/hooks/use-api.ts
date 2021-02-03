@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from './use-auth';
 
-const API_ROOT = 'http://localhost:3000'
+const API_ROOT = 'http://192.168.0.102:3000'
 const useApiState = <T extends any>(initRun?: boolean) => {
   const [isLoading, setIsLoading] = useState(Boolean(initRun))
   const [data, setData] = useState<T | null>(null)
@@ -63,13 +63,13 @@ type useApiParams = {
 }
 
 export const useApi = <T extends any>(params: useApiParams) => {
-  const { initRun = false, url, raw = false, method = 'GET', withAuth = true } = params;
+  const { initRun = false, raw = false, method = 'GET', withAuth = true } = params;
   const { isLoading, setIsLoading, error, setError, data, setData } = useApiState<T>(initRun)
   const [started, setStarted] = useState(false)
 
   const { createOptions } = useFetchOptions({ method, withAuth })
 
-  const fetchApi = useCallback(async (overloadParams: useApiParams): Promise<{ data: T | null, error: T | null }> => {
+  const fetchApi = useCallback(async (overloadParams?: useApiParams): Promise<{ data: T | null, error: T | null }> => {
     try {
       const { body, url } = {
         ...params,
@@ -98,7 +98,7 @@ export const useApi = <T extends any>(params: useApiParams) => {
     } finally {
       setIsLoading(false)
     }
-  }, [createOptions, method, raw, setData, setError, setIsLoading, url])
+  }, [createOptions, method, raw, setData, setError, setIsLoading, params])
 
   useEffect(() => {
     if (started) return
@@ -107,7 +107,7 @@ export const useApi = <T extends any>(params: useApiParams) => {
       setStarted(true)
       fetchApi(params)
     }
-  }, [initRun, fetchApi, setStarted, started])
+  }, [initRun, fetchApi, setStarted, started, params])
 
   return {
     isLoading,
