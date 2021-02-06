@@ -17,6 +17,9 @@ export const AlbumDetail = () => {
     <div>
       {data?.pics.map(pic => (
         <img
+          style={{
+            maxWidth: '100vw'
+          }}
           key={pic._id}
           src={CAMO_URL || `${API_ROOT}/blobs/raw/${pic.blobId}`}
           alt={data?.title}

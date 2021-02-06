@@ -49,28 +49,23 @@ const AlbumsList = styled(({ className = '' }: AlbumsListProps) => {
   }
 
   return (
-    <div className={className}>
+    <section className={className}>
       {isLoading ? (
-        <Loader
-          type="Oval"
-          color="#00BFFF"
-          height="2.6rem"
-          width="2.6rem"
-        />
+        <div className="albums-loader">
+          <Loader type="BallTriangle" color="#00cec9" />
+        </div>
       ) : (
-        <section>
-          <div className="albums" ref={albumListRef}>
-            {albums.map(album => <AlbumCard key={album._id} album={album} />)}
-          </div>
-          <Pager
-            className="pager"
-            pageCount={pageCount}
-            getUrl={page => `albums?page=${page}`}
-            currentPage={page}
-          />
-        </section>
+        <div className="albums" ref={albumListRef}>
+          {albums.map(album => <AlbumCard key={album._id} album={album} />)}
+        </div>
       )}
-    </div>
+      <Pager
+        className="pager"
+        pageCount={pageCount}
+        getUrl={page => `albums?page=${page}`}
+        currentPage={page}
+      />
+    </section>
   )
 })`
   max-height: 100vh;
@@ -80,7 +75,7 @@ const AlbumsList = styled(({ className = '' }: AlbumsListProps) => {
     flex-direction: column;
   }
 
-  .albums {
+  .albums, .albums-loader {
     flex-basis: 0;
     flex-grow: 1;
     display: flex;
