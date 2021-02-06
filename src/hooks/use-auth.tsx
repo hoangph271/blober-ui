@@ -1,7 +1,7 @@
-import React, { useContext, useState } from 'react';
+import { createContext, ReactChild, ReactChildren, useContext, useState } from 'react'
 
 type AuthContextProviderProps = {
-  children: React.ReactChildren | React.ReactChild
+  children: ReactChildren | ReactChild
 }
 type AuthContextValue = {
   token: string | null,
@@ -10,7 +10,7 @@ type AuthContextValue = {
   isAuthed: boolean,
 }
 const STORAGE_TOKEN_KEY = 'STORAGE_TOKEN_KEY'
-const AuthContext = React.createContext<AuthContextValue>((null as unknown) as AuthContextValue)
+const AuthContext = createContext<AuthContextValue>((null as unknown) as AuthContextValue)
 export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   const [token, setToken] = useState<string | null>(localStorage.getItem(STORAGE_TOKEN_KEY))
 
@@ -29,7 +29,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
     token,
     storeToken,
     clearToken,
-    isAuthed: Boolean(token),
+    isAuthed: Boolean(token)
   }
 
   return (

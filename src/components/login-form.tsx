@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react"
-import { useAuth } from "../hooks"
-import { usePost } from "../hooks/use-apis"
+import { FormEvent, useEffect, useState } from 'react'
+import { useAuth } from '../hooks'
+import { usePost } from '../hooks/use-apis'
 
 export const LoginForm = () => {
   const [username, setUsername] = useState('username')
@@ -8,7 +8,7 @@ export const LoginForm = () => {
   const { startFetching, data } = usePost({ url: 'auth' })
   const { storeToken } = useAuth()
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     startFetching(JSON.stringify({ username, password }))

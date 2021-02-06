@@ -1,10 +1,10 @@
-import React from 'react'
-import styled from 'styled-components';
-import { Redirect, BrowserRouter, Switch, Route } from 'react-router-dom';
-import { AuthContextProvider, useAuth } from './hooks';
-import * as Views from './pages';
+import { ComponentType } from 'react'
+import styled from 'styled-components'
+import { Redirect, BrowserRouter, Switch, Route } from 'react-router-dom'
+import { AuthContextProvider, useAuth } from './hooks'
+import * as Views from './pages'
 
-const withAuthRequired = (View: React.ComponentType<any>) => {
+const withAuthRequired = (View: ComponentType<any>) => {
   return () => {
     const { isAuthed } = useAuth()
 
@@ -15,8 +15,7 @@ const withAuthRequired = (View: React.ComponentType<any>) => {
 type AppProps = {
   className?: string,
 }
-function App({ className = '' }: AppProps) {
-
+function App ({ className = '' }: AppProps) {
   return (
     <div className={`App ${className}`}>
       <BrowserRouter>
@@ -24,17 +23,17 @@ function App({ className = '' }: AppProps) {
           <Route path="/albums/:id" component={withAuthRequired(Views.AlbumDetail)} />
           <Route path="/albums" component={withAuthRequired(Views.AlbumsList)} />
           <Route path="/login" component={Views.Login} />
-          <Route path="/" component={() => '404 | Not Found' as unknown as JSX.Element} />
+          <Route path="/" component={() => '404 | Not Found' as unknown as any} />
         </Switch>
       </BrowserRouter>
     </div>
-  );
+  )
 }
 
 const StyledApp = styled(App)`
   width: 100vw;
   overflow: hidden;
-`;
+`
 
 const AppRoot = () => {
   return (
@@ -43,4 +42,4 @@ const AppRoot = () => {
     </AuthContextProvider>
   )
 }
-export default AppRoot;
+export default AppRoot

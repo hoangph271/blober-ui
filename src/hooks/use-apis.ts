@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from "react"
-import { useAuth } from "."
-import { API_ROOT } from "../constants"
+import { useCallback, useEffect, useState } from 'react'
+import { useAuth } from '.'
+import { API_ROOT } from '../constants'
 
+/* eslint-disable no-unused-vars */
 export enum ApiStates {
   NOT_STARTED,
   STARTED,
@@ -11,7 +12,7 @@ export enum ApiStates {
 }
 
 const parseResponseData = async (res: Response) => {
-  const contentType = res.headers.get('content-type');
+  const contentType = res.headers.get('content-type')
   switch (true) {
     case contentType?.startsWith('application/json;'): {
       return res.json()
@@ -28,22 +29,22 @@ type useGetParams = {
 }
 export const useGet = <T extends any>(params: useGetParams) => {
   const [apiState, setApiState] = useState<ApiStates>(params.initRun ? ApiStates.STARTED : ApiStates.NOT_STARTED)
-  const [error, setError] = useState<Error | null>(null);
-  const [data, setData] = useState<T | null>(null);
-  const { token } = useAuth();
+  const [error, setError] = useState<Error | null>(null)
+  const [data, setData] = useState<T | null>(null)
+  const { token } = useAuth()
 
   const getApi = useCallback(async () => {
     const { url } = params
 
     return fetch(`${API_ROOT}/${url}`, {
       headers: {
-        ...token && { 'Authorization': `Bearer ${token}` },
+        ...token && { Authorization: `Bearer ${token}` }
       }
     })
   }, [params, token])
 
   useEffect(() => {
-    if (apiState !== ApiStates.STARTED) return;
+    if (apiState !== ApiStates.STARTED) return
 
     setApiState(ApiStates.RUNNING)
 
@@ -70,7 +71,7 @@ export const useGet = <T extends any>(params: useGetParams) => {
     startFetching,
     apiState,
     error,
-    data,
+    data
   }
 }
 
@@ -81,10 +82,10 @@ type usePostParams = useGetParams & {
 }
 export const usePost = <T extends any>(params: usePostParams) => {
   const [apiState, setApiState] = useState<ApiStates>(params.initRun ? ApiStates.STARTED : ApiStates.NOT_STARTED)
-  const [error, setError] = useState<Error | null>(null);
-  const [data, setData] = useState<T | null>(null);
+  const [error, setError] = useState<Error | null>(null)
+  const [data, setData] = useState<T | null>(null)
   const [body, setBody] = useState(params.body)
-  const { token } = useAuth();
+  const { token } = useAuth()
 
   const postApi = useCallback(async () => {
     const { url, contentType = 'application/json' } = params
@@ -92,15 +93,15 @@ export const usePost = <T extends any>(params: usePostParams) => {
     return fetch(`${API_ROOT}/${url}`, {
       method: 'POST',
       headers: {
-        ...token && { 'Authorization': `Bearer ${token}` },
-        'Content-Type': contentType,
+        ...token && { Authorization: `Bearer ${token}` },
+        'Content-Type': contentType
       },
-      body,
+      body
     })
   }, [params, token, body])
 
   useEffect(() => {
-    if (apiState !== ApiStates.STARTED) return;
+    if (apiState !== ApiStates.STARTED) return
 
     setApiState(ApiStates.RUNNING)
 
@@ -129,6 +130,6 @@ export const usePost = <T extends any>(params: usePostParams) => {
     startFetching,
     apiState,
     error,
-    data,
+    data
   }
 }

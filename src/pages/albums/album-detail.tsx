@@ -1,8 +1,8 @@
-import Loader from "react-loader-spinner"
-import { useParams } from "react-router-dom"
-import { API_ROOT, CAMO_URL } from "../../constants"
-import { useGet } from "../../hooks/use-apis"
-import { Album } from "../../interfaces"
+import Loader from 'react-loader-spinner'
+import { useParams } from 'react-router-dom'
+import { API_ROOT, CAMO_URL } from '../../constants'
+import { useGet } from '../../hooks/use-apis'
+import { Album } from '../../interfaces'
 
 type AlbumDetailRouteParams = {
   id: string,

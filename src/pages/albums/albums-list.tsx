@@ -1,58 +1,26 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
-
-import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
-import { Album, ArrayResponse, OptionalClassname } from '../../interfaces';
-import { Link, Redirect, useLocation } from 'react-router-dom';
-import { useGet } from '../../hooks/use-apis';
-import Loader from 'react-loader-spinner';
-import { API_ROOT, CAMO_URL } from '../../constants';
-import { Pager } from '../../components';
+import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import styled from 'styled-components'
+import { Album, ArrayResponse, OptionalClassname } from '../../interfaces'
+import { Link, Redirect, useLocation } from 'react-router-dom'
+import { useGet } from '../../hooks/use-apis'
+import Loader from 'react-loader-spinner'
+import { API_ROOT, CAMO_URL } from '../../constants'
+import { Pager } from '../../components'
 
 type AlbumsListProps = {
   className?: string,
 }
-const usePageParam = () => {
-  const { search } = useLocation()
-  const pageParam = new window.URLSearchParams(search).get('page') || ''
-  const [page, setPage] = useState(Number.parseInt(pageParam))
-
-  useEffect(() => {
-    const pageParam = new window.URLSearchParams(search).get('page') || ''
-    setPage(Number.parseInt(pageParam))
-  }, [search])
-
-  const { data, error, startFetching } = useGet<ArrayResponse<Album>>({ url: 'albums?take=0&skip=0' })
-  useEffect(() => {
-    if (Number.isNaN(page)) {
-      startFetching()
-    }
-  }, [page, startFetching])
-
-  useEffect(() => {
-    if (error) {
-      console.error(error);
-      setPage(1)
-      return;
-    }
-
-    if (data) {
-      const pageCount = Math.ceil(data.itemCount / PAGE_LIMIT);
-      setPage(pageCount)
-    }
-  }, [data, error, page])
-
-  return { page }
-}
 const PAGE_LIMIT = 12
 const AlbumsList = styled(({ className = '' }: AlbumsListProps) => {
   const { search } = useLocation()
-  const { page } = usePageParam();
   const [pageCount, setPageCount] = useState(0)
   const [albums, setAlbums] = useState<Album[]>([])
   const albumListRef = useRef<HTMLDivElement>(null)
+  const page = Number.parseInt(new URLSearchParams(search).get('page') || '1')
+
   const { data, startFetching, isLoading } = useGet<ArrayResponse<Album>>({
-    url: `albums?take=${PAGE_LIMIT}&skip=${(page - 1) * PAGE_LIMIT}`,
+    url: `albums?take=${PAGE_LIMIT}&skip=${(page - 1) * PAGE_LIMIT}`
   })
 
   useLayoutEffect(() => {
@@ -76,25 +44,19 @@ const AlbumsList = styled(({ className = '' }: AlbumsListProps) => {
 
   if (!new window.URLSearchParams(search).get('page')) {
     return (
-      <Redirect to={`/albums?page=${page}`} />
-    )
-  }
-
-  if (Number.isNaN(page)) {
-    return (
-      <Loader
-        type="Oval"
-        color="#00BFFF"
-        height="2.6rem"
-        width="2.6rem"
-      />
+      <Redirect to={`/albums?page=${1}`} />
     )
   }
 
   return (
     <div className={className}>
       {isLoading ? (
-        <Loader />
+        <Loader
+          type="Oval"
+          color="#00BFFF"
+          height="2.6rem"
+          width="2.6rem"
+        />
       ) : (
         <section>
           <div className="albums" ref={albumListRef}>
@@ -141,7 +103,7 @@ const AlbumCard = styled(({ album, className }: AlbumCardProps) => {
       style={{
         backgroundImage: CAMO_URL
           ? `url(${CAMO_URL})`
-          : `url(${API_ROOT}/blobs/raw/${pics[0]?.blobId})`,
+          : `url(${API_ROOT}/blobs/raw/${pics[0]?.blobId})`
       }}
     >
       <div className="album-title">

@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom"
-import styled from "styled-components"
-import { OptionalClassname } from "../interfaces"
+import { Link } from 'react-router-dom'
+import styled from 'styled-components'
+import { OptionalClassname } from '../interfaces'
 
 type PageLinkProps = {
   to?: string,

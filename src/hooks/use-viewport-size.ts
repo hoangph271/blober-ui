@@ -1,16 +1,16 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from 'react'
 
 export const useViewportSize = () => {
   const [size, setSize] = useState({
     width: document.body.offsetWidth,
-    height: document.body.offsetHeight,
+    height: document.body.offsetHeight
   })
 
   useEffect(() => {
     const handleBodyResized = () => {
       setSize({
         width: document.body.offsetWidth,
-        height: document.body.offsetHeight,
+        height: document.body.offsetHeight
       })
     }
 
