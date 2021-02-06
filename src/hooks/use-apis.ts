@@ -77,6 +77,7 @@ export const useGet = <T extends any>(params: useGetParams) => {
 type HttpBody = string | Blob | ArrayBufferView | ArrayBuffer | FormData | URLSearchParams | ReadableStream<Uint8Array> | null
 type usePostParams = useGetParams & {
   body?: HttpBody,
+  contentType?: 'application/json'
 }
 export const usePost = <T extends any>(params: usePostParams) => {
   const [apiState, setApiState] = useState<ApiStates>(params.initRun ? ApiStates.STARTED : ApiStates.NOT_STARTED)
@@ -86,12 +87,13 @@ export const usePost = <T extends any>(params: usePostParams) => {
   const { token } = useAuth();
 
   const postApi = useCallback(async () => {
-    const { url } = params
+    const { url, contentType = 'application/json' } = params
 
     return fetch(`${API_ROOT}/${url}`, {
       method: 'POST',
       headers: {
         ...token && { 'Authorization': `Bearer ${token}` },
+        'Content-Type': contentType,
       },
       body,
     })

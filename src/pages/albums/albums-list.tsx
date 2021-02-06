@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
-import { Album, ArrayResponse } from '../../interfaces';
+import { Album, ArrayResponse, OptionalClassname } from '../../interfaces';
 import { Link, Redirect, useLocation } from 'react-router-dom';
 import { useGet } from '../../hooks/use-apis';
 import Loader from 'react-loader-spinner';
-import { API_ROOT } from '../../constants';
-
-const camoUrl = '';
+import { API_ROOT, CAMO_URL } from '../../constants';
+import { Pager } from '../../components';
 
 type AlbumsListProps = {
   className?: string,
@@ -51,12 +50,19 @@ const AlbumsList = styled(({ className = '' }: AlbumsListProps) => {
   const { page } = usePageParam();
   const [pageCount, setPageCount] = useState(0)
   const [albums, setAlbums] = useState<Album[]>([])
-  const { data, startFetching } = useGet<ArrayResponse<Album>>({
+  const albumListRef = useRef<HTMLDivElement>(null)
+  const { data, startFetching, isLoading } = useGet<ArrayResponse<Album>>({
     url: `albums?take=${PAGE_LIMIT}&skip=${(page - 1) * PAGE_LIMIT}`,
   })
 
+  useLayoutEffect(() => {
+    if (typeof page === 'number') {
+      albumListRef.current?.scrollTo(0, 0)
+    }
+  }, [page])
+
   useEffect(() => {
-    if (Number.isNaN(page)) return;
+    if (Number.isNaN(page)) return
     startFetching()
   }, [page, startFetching])
 
@@ -68,6 +74,12 @@ const AlbumsList = styled(({ className = '' }: AlbumsListProps) => {
     setAlbums(items)
   }, [data])
 
+  if (!new window.URLSearchParams(search).get('page')) {
+    return (
+      <Redirect to={`/albums?page=${page}`} />
+    )
+  }
+
   if (Number.isNaN(page)) {
     return (
       <Loader
@@ -77,106 +89,93 @@ const AlbumsList = styled(({ className = '' }: AlbumsListProps) => {
         width="2.6rem"
       />
     )
-  } else if (!new window.URLSearchParams(search).get('page')) {
-    return (
-      <Redirect to={`/albums?page=${page}`} />
-    )
   }
 
   return (
     <div className={className}>
-      <div className="albums">
-        {albums.map(album => <AlbumCard key={album._id} album={album} />)}
-      </div>
-      {pageCount && (
-        <Pager
-          className="pager"
-          pageCount={pageCount}
-          currentPage={page}
-        />
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <section>
+          <div className="albums" ref={albumListRef}>
+            {albums.map(album => <AlbumCard key={album._id} album={album} />)}
+          </div>
+          <Pager
+            className="pager"
+            pageCount={pageCount}
+            getUrl={page => `albums?page=${page}`}
+            currentPage={page}
+          />
+        </section>
       )}
     </div>
   )
 })`
   max-height: 100vh;
+  section {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
 
   .albums {
-    display: flex;
+    flex-basis: 0;
     flex-grow: 1;
-    overflow-y: scroll;
-    justify-content: space-around;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-`
-type PagerProps = {
-  pageCount: number,
-  currentPage: number,
-  className?: string,
-}
-const Pager = styled((props: PagerProps) => {
-  const { currentPage, pageCount, className = '' } = props
-  const pages = Array.from({ length: pageCount })
-    .map((_, i) => i + 1)
-
-  return (
-    <div className={className}>
-      {pages.map(page => page === currentPage ? (
-        <button key={page} disabled className="page-button">
-          {page}
-        </button>
-      ) : (
-          <Link key={page} to={`/albums?page=${page}`} className="page-button">
-            {page}
-          </Link>
-        ))}
-    </div>
-  )
-})`
-  display: flex;
-  justify-content: center;
-  gap: 0.2rem;
-  margin: 0.3rem 0;
-  flex-wrap: wrap;
-
-  .page-button {
-    border: 1px solid gray;
-    border-radius: 2px;
-    width: 1.4rem;
-    height: 1.4rem;
-    text-decoration: none;
-    display: inline-flex;
+    display: flex;
+    overflow-y: auto;
     justify-content: center;
     align-items: center;
-    font-size: medium;
-    box-sizing: border-box;
-    color: black;
-  }
-  .page-button[disabled] {
-    background-color: gray;
+    flex-wrap: wrap;
   }
 `
 
 type AlbumCardProps = {
   album: Album
-}
-const AlbumCard = ({ album }: AlbumCardProps) => {
+} & OptionalClassname
+const AlbumCard = styled(({ album, className }: AlbumCardProps) => {
   const { _id, title, pics } = album
   return (
-    <div
-      className="album-card"
+    <Link
+      to={`albums/${_id}`}
+      className={className}
       style={{
-        width: '300px',
-        height: '400px',
-        backgroundImage: `url(${API_ROOT}/blobs/raw/${pics[0]?.blobId})`,
+        backgroundImage: CAMO_URL
+          ? `url(${CAMO_URL})`
+          : `url(${API_ROOT}/blobs/raw/${pics[0]?.blobId})`,
       }}
     >
-      <Link className="album-title" to={`albums/${_id}`}>
-        {camoUrl ? `Camo #${_id}` : title}
-      </Link>
-    </div>
+      <div className="album-title">
+        {CAMO_URL ? _id : title}
+      </div>
+    </Link>
   )
-}
+})`
+  width: 300px;
+  height: 400px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  margin: 1rem;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.4);
+  border-radius: 0.1rem;
+
+  &:hover {
+    cursor: pointer;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.6);
+    transform: scale(1.04);
+  }
+
+  .album-title {
+    color: black;
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.65);
+    padding: 0.2rem 0;
+    bottom: 0;
+    top: unset;
+  }
+`
 
 const StyledAlbumview = styled(AlbumsList)`
   height: 100vh;
@@ -187,22 +186,6 @@ const StyledAlbumview = styled(AlbumsList)`
   .albums-list {
     flex-grow: 1;
     overflow-y: scroll;
-  }
-
-  .album-card {
-    position: relative;
-    margin: 0.4rem;
-
-    .album-title {
-      color: black;
-      position: absolute;
-      width: 100%;
-      text-align: center;
-      background-color: rgba(255, 255, 255, 0.65);
-      padding: 0.2rem 0;
-      bottom: 0;
-      top: unset;
-    }
   }
 `
 

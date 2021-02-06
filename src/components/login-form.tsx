@@ -11,10 +11,7 @@ export const LoginForm = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    startFetching(JSON.stringify({
-      url: 'auth',
-      body: JSON.stringify({ username, password }),
-    }))
+    startFetching(JSON.stringify({ username, password }))
   }
 
   useEffect(() => {
