@@ -4,9 +4,8 @@ import styled from 'styled-components'
 import { Album, ArrayResponse, OptionalClassname } from '../../interfaces'
 import { Link, Redirect, useLocation } from 'react-router-dom'
 import { useGet } from '../../hooks/use-apis'
-import Loader from 'react-loader-spinner'
 import { API_ROOT, CAMO_URL } from '../../constants'
-import { Pager } from '../../components'
+import { FullGrowLoader, Pager } from '../../components'
 
 type AlbumsListProps = {
   className?: string,
@@ -51,9 +50,7 @@ const AlbumsList = styled(({ className = '' }: AlbumsListProps) => {
   return (
     <section className={className}>
       {isLoading ? (
-        <div className="albums-loader">
-          <Loader type="BallTriangle" color="#00cec9" />
-        </div>
+        <FullGrowLoader />
       ) : (
         <div className="albums" ref={albumListRef}>
           {albums.map(album => <AlbumCard key={album._id} album={album} />)}
