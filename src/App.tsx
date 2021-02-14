@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { Redirect, BrowserRouter, Switch, Route } from 'react-router-dom'
 import { AuthContextProvider, useAuth } from './hooks'
 import * as Views from './pages'
+import { withDefaultHeader } from './components'
 
 const withAuthRequired = (View: ComponentType<any>) => {
   return () => {
@@ -23,7 +24,9 @@ function App ({ className = '' }: AppProps) {
           <Route path="/albums/:id" component={withAuthRequired(Views.AlbumDetail)} />
           <Route path="/albums" component={withAuthRequired(Views.AlbumsList)} />
           <Route path="/login" component={Views.Login} />
-          <Route path="/" component={() => '404 | Not Found' as unknown as any} />
+          <Route path="/profile" component={Views.Profile} />
+          <Route path="/" exact component={() => withDefaultHeader()} />
+          <Route component={() => '404 | Not Found' as unknown as any} />
         </Switch>
       </BrowserRouter>
     </div>

@@ -6,7 +6,7 @@ export const Login = () => {
   const { isAuthed } = useAuth()
 
   return isAuthed ? (
-    <Redirect to="albums" />
+    <Redirect to="/" />
   ) : (
     <LoginForm />
   )
