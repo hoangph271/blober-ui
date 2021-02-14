@@ -23,6 +23,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   const clearToken = () => {
     setToken(null)
     localStorage.removeItem(STORAGE_TOKEN_KEY)
+    document.cookie = ''
   }
 
   const value: AuthContextValue = {

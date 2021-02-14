@@ -129,6 +129,7 @@ export const usePost = <T extends any>(params: usePostParams) => {
   return {
     startFetching,
     apiState,
+    isLoading: apiState === ApiStates.RUNNING,
     error,
     data
   }
