@@ -13,9 +13,10 @@ const FullGrowLoader = (props: OptionalClassname) => {
 }
 
 const StyledFullGrowLoader = styled(FullGrowLoader)`
-  
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `
 
-export {
-  StyledFullGrowLoader as FullGrowLoader
-}
+export { StyledFullGrowLoader as FullGrowLoader }

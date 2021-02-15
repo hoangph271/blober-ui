@@ -30,7 +30,7 @@ type useGetParams = {
 export const useGet = <T extends any>(params: useGetParams) => {
   const [apiState, setApiState] = useState<ApiStates>(params.initRun ? ApiStates.STARTED : ApiStates.NOT_STARTED)
   const [error, setError] = useState<Error | null>(null)
-  const [data, setData] = useState<T | null>(null)
+  const [data, setData] = useState<T | undefined>()
   const { token } = useAuth()
 
   const getApi = useCallback(async () => {

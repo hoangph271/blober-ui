@@ -1,17 +1,17 @@
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
-import { Album, ArrayResponse, OptionalClassname } from '../../interfaces'
+import { Album, ArrayResponse } from '../../interfaces'
 import { Link, Redirect, useLocation } from 'react-router-dom'
 import { useGet } from '../../hooks/use-apis'
-import { API_ROOT, CAMO_URL } from '../../constants'
-import { FullGrowLoader, Pager } from '../../components'
+import { API_ROOT } from '../../constants'
+import { Card, FlexList, FullGrowLoader, Pager } from '../../components'
 
 type AlbumsListProps = {
   className?: string,
 }
 const PAGE_LIMIT = 12
-const AlbumsList = styled(({ className = '' }: AlbumsListProps) => {
+const AlbumsList = ({ className = '' }: AlbumsListProps) => {
   const { search } = useLocation()
   const [pageCount, setPageCount] = useState(0)
   const [albums, setAlbums] = useState<Album[]>([])
@@ -48,13 +48,24 @@ const AlbumsList = styled(({ className = '' }: AlbumsListProps) => {
   }
 
   return (
-    <section className={className}>
+    <main className={className}>
       {isLoading ? (
         <FullGrowLoader />
       ) : (
-        <div className="albums" ref={albumListRef}>
-          {albums.map(album => <AlbumCard key={album._id} album={album} />)}
-        </div>
+        <FlexList className="albums-list">
+          {albums.map(album => (
+            <Link
+              to={`albums/${album._id}`}
+              key={album._id}
+            >
+              <Card
+                title={album.title}
+                className="album-card"
+                coverUrl={`${API_ROOT}/blobs/raw/${album.pics[0]?.blobId}`}
+              />
+            </Link>
+          ))}
+        </FlexList>
       )}
       <Pager
         className="pager"
@@ -62,85 +73,20 @@ const AlbumsList = styled(({ className = '' }: AlbumsListProps) => {
         getUrl={page => `albums?page=${page}`}
         currentPage={page}
       />
-    </section>
+    </main>
   )
-})`
-  max-height: 100vh;
-  section {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-  }
+}
 
-  .albums, .albums-loader {
-    flex-basis: 0;
-    flex-grow: 1;
-    display: flex;
-    overflow-y: auto;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-`
-
-type AlbumCardProps = {
-  album: Album
-} & OptionalClassname
-const AlbumCard = styled(({ album, className }: AlbumCardProps) => {
-  const { _id, title, pics } = album
-  return (
-    <Link
-      to={`albums/${_id}`}
-      className={className}
-      style={{
-        backgroundImage: CAMO_URL
-          ? `url(${CAMO_URL})`
-          : `url(${API_ROOT}/blobs/raw/${pics[0]?.blobId})`
-      }}
-    >
-      <div className="album-title">
-        {CAMO_URL ? _id : title}
-      </div>
-    </Link>
-  )
-})`
-  width: 300px;
-  height: 400px;
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  margin: 1rem;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.4);
-  border-radius: 0.1rem;
-
-  &:hover {
-    cursor: pointer;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.6);
-    transform: scale(1.04);
-  }
-
-  .album-title {
-    color: black;
-    position: absolute;
-    width: 100%;
-    text-align: center;
-    background-color: rgba(255, 255, 255, 0.65);
-    padding: 0.2rem 0;
-    bottom: 0;
-    top: unset;
-  }
-`
-
-const StyledAlbumview = styled(AlbumsList)`
+const StyledAlbumList = styled(AlbumsList)`
   height: 100vh;
   max-height: 100vh;
+  max-width: 100vw;
   display: flex;
   flex-direction: column;
 
-  .albums-list {
-    flex-grow: 1;
-    overflow-y: scroll;
+  .album-card {
+    height: 400px;
   }
 `
 
-export { StyledAlbumview as AlbumsList }
+export { StyledAlbumList as AlbumsList }
