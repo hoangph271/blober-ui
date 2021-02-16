@@ -12,17 +12,17 @@ type AuthContextValue = {
 const STORAGE_TOKEN_KEY = 'STORAGE_TOKEN_KEY'
 const AuthContext = createContext<AuthContextValue>((null as unknown) as AuthContextValue)
 export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
-  const [token, setToken] = useState<string | null>(localStorage.getItem(STORAGE_TOKEN_KEY))
+  const [token, setToken] = useState<string | null>(sessionStorage.getItem(STORAGE_TOKEN_KEY))
 
   const storeToken = (token: string) => {
     setToken(token)
-    localStorage.setItem(STORAGE_TOKEN_KEY, token)
+    sessionStorage.setItem(STORAGE_TOKEN_KEY, token)
     document.cookie = `Authentication=${token}`
   }
 
   const clearToken = () => {
     setToken(null)
-    localStorage.removeItem(STORAGE_TOKEN_KEY)
+    sessionStorage.removeItem(STORAGE_TOKEN_KEY)
     document.cookie = ''
   }
 

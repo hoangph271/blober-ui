@@ -7,10 +7,11 @@ type CardProps = {
   onClick?(): void
 } & OptionalClassname
 const Card = (props: CardProps) => {
-  const { className, title, coverUrl } = props
+  const { className, title, coverUrl, onClick } = props
 
   return (
     <figure
+      onClick={onClick}
       className={className}
       style={{
         backgroundImage: `url(${coverUrl})`

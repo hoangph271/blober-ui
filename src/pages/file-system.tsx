@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import { useLocation } from 'react-router'
 import { Link } from 'react-router-dom'
-import { Card, FlexList, FullGrowLoader } from '../components'
+import ReactPlayer from 'react-player'
+import { Card, FlexList, FullGrowLoader, withAuthRequired } from '../components'
 import { useGet } from '../hooks/use-apis'
 import { API_ROOT } from '../constants'
 import { OptionalClassname } from '../interfaces'
+import styled from 'styled-components'
 
 type FSItem = {
   isDir: boolean
@@ -23,9 +26,26 @@ type FSItemCardProps = {
 } & OptionalClassname
 const FSItemCard = (props: FSItemCardProps) => {
   const { fsItem } = props
+  const [open, setOpen] = useState(false)
 
   const handleItemClicked = () => {
-    console.info(`TODO: Play ${fsItem.itemPath}`)
+    setOpen(true)
+  }
+
+  if (open) {
+    return (
+      <ReactPlayer
+        muted
+        playing
+        controls
+        width="300px"
+        height="300px"
+        style={{
+          margin: '1rem'
+        }}
+        url={`${API_ROOT}/files/raw?path=${encodeURIComponent(fsItem.itemPath)}`}
+      />
+    )
   }
 
   return fsItem.isDir ? (
@@ -50,7 +70,7 @@ type FolderViewProps = {
   path: string,
 } & OptionalClassname
 const FolderView = (props: FolderViewProps) => {
-  const { path } = props
+  const { path, className } = props
   const { data = [], isLoading } = useGet<FSItem[]>({
     url: `/files?path=${encodeURIComponent(path)}`,
     initRun: true
@@ -59,7 +79,7 @@ const FolderView = (props: FolderViewProps) => {
   if (isLoading) return <FullGrowLoader />
 
   return (
-    <ul>
+    <ul className={className}>
       <FlexList>
         {data.map(fsItem => <FSItemCard key={fsItem.itemPath} fsItem={fsItem} />)}
       </FlexList>
@@ -67,9 +87,13 @@ const FolderView = (props: FolderViewProps) => {
   )
 }
 
-export const FileSystem = () => {
+const StyledFolderView = styled(FolderView)`
+  padding: 0;
+`
+
+export const FileSystem = withAuthRequired(() => {
   const { search } = useLocation()
   const path = new URLSearchParams(search).get('path') || ''
 
-  return <FolderView path={path} key={path} />
-}
+  return <StyledFolderView path={path} key={path} />
+})

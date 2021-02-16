@@ -1,6 +1,7 @@
 export { LoginForm } from './login-form'
 export { Pager } from './pager'
 export { withDefaultHeader } from './hoc/with-default-header'
+export { withAuthRequired } from './hoc/with-auth-required'
 export { FullGrowLoader } from './full-grow-loader'
 export { FlexList } from './flex-list'
 export { Card } from './card'

@@ -1,37 +1,28 @@
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
-import { Album, ArrayResponse } from '../../interfaces'
-import { Link, Redirect, useLocation } from 'react-router-dom'
-import { useGet } from '../../hooks/use-apis'
+import { Album } from '../../interfaces'
+import { Link } from 'react-router-dom'
 import { API_ROOT } from '../../constants'
 import { Card, FlexList, FullGrowLoader, Pager } from '../../components'
+import { usePagedList } from '../../hooks/use-paged-list'
 
 type AlbumsListProps = {
   className?: string,
 }
 const PAGE_LIMIT = 12
 const AlbumsList = ({ className = '' }: AlbumsListProps) => {
-  const { search } = useLocation()
   const [pageCount, setPageCount] = useState(0)
   const [albums, setAlbums] = useState<Album[]>([])
   const albumListRef = useRef<HTMLDivElement>(null)
-  const page = Number.parseInt(new URLSearchParams(search).get('page') || '1')
 
-  const { data, startFetching, isLoading } = useGet<ArrayResponse<Album>>({
-    url: `albums?take=${PAGE_LIMIT}&skip=${(page - 1) * PAGE_LIMIT}`
+  const handleRefreshed = () => {
+    albumListRef.current?.scrollTo(0, 0)
+  }
+  const { data, isLoading, page } = usePagedList<Album>({
+    getUrl: page => `albums?take=${PAGE_LIMIT}&skip=${(page - 1) * PAGE_LIMIT}`,
+    onRefreshed: handleRefreshed
   })
-
-  useLayoutEffect(() => {
-    if (typeof page === 'number') {
-      albumListRef.current?.scrollTo(0, 0)
-    }
-  }, [page])
-
-  useEffect(() => {
-    if (Number.isNaN(page)) return
-    startFetching()
-  }, [page, startFetching])
 
   useEffect(() => {
     if (!data) return
@@ -40,12 +31,6 @@ const AlbumsList = ({ className = '' }: AlbumsListProps) => {
     setPageCount(Math.ceil(itemCount / PAGE_LIMIT))
     setAlbums(items)
   }, [data])
-
-  if (!new window.URLSearchParams(search).get('page')) {
-    return (
-      <Redirect to={`/albums?page=${1}`} />
-    )
-  }
 
   return (
     <main className={className}>
