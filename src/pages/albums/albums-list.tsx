@@ -1,11 +1,11 @@
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css'
 import { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
-import { Album } from '../../interfaces'
 import { Link } from 'react-router-dom'
 import { API_ROOT } from '../../constants'
-import { Card, FlexList, FullGrowLoader, Pager } from '../../components'
+import { Card, ScrollableGrid, FullGrowLoader, Pager } from '../../components'
 import { usePagedList } from '../../hooks/use-paged-list'
+import { Album } from '../../interfaces'
 
 type AlbumsListProps = {
   className?: string,
@@ -37,7 +37,7 @@ const AlbumsList = ({ className = '' }: AlbumsListProps) => {
       {isLoading ? (
         <FullGrowLoader />
       ) : (
-        <FlexList className="albums-list">
+        <ScrollableGrid className="albums-list">
           {albums.map(album => (
             <Link
               to={`albums/${album._id}`}
@@ -50,12 +50,12 @@ const AlbumsList = ({ className = '' }: AlbumsListProps) => {
               />
             </Link>
           ))}
-        </FlexList>
+        </ScrollableGrid>
       )}
       <Pager
         className="pager"
         pageCount={pageCount}
-        getUrl={page => `albums?page=${page}`}
+        getUrl={(page: number) => `albums?page=${page}`}
         currentPage={page}
       />
     </main>

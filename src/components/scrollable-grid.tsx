@@ -2,9 +2,9 @@ import { FunctionComponent } from 'react'
 import styled from 'styled-components'
 import { OptionalClassname } from '../interfaces'
 
-type FlexListProps = {
+type ScrollableGridProps = {
 } & OptionalClassname
-const FlexList: FunctionComponent<FlexListProps> = (props) => {
+const ScrollableGrid: FunctionComponent<ScrollableGridProps> = (props) => {
   const { className, children } = props
 
   return (
@@ -14,7 +14,7 @@ const FlexList: FunctionComponent<FlexListProps> = (props) => {
   )
 }
 
-const StyledFlexList = styled(FlexList)`
+const StyledScrollableGrid = styled(ScrollableGrid)`
   display: flex;
   overflow-y: auto;
   justify-content: center;
@@ -23,4 +23,4 @@ const StyledFlexList = styled(FlexList)`
   max-width: 100vw;
 `
 
-export { StyledFlexList as FlexList }
+export { StyledScrollableGrid as ScrollableGrid }

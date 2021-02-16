@@ -6,7 +6,7 @@ export type ArrayResponse<T> = {
   items: T[],
 }
 
-type Pic = {
+export type Pic = {
   _id: string,
   title: string,
   blobId: string,
@@ -15,4 +15,9 @@ export type Album = {
   _id: string,
   title: string,
   pics: Pic[]
+}
+
+export type FSItem = {
+  isDir: boolean
+  itemPath: string
 }
