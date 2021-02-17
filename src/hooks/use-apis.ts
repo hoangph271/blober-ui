@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useAuth } from '.'
 import { API_ROOT } from '../constants'
 
 /* eslint-disable no-unused-vars */
@@ -31,17 +30,12 @@ export const useGet = <T extends any>(params: useGetParams) => {
   const [apiState, setApiState] = useState<ApiStates>(params.initRun ? ApiStates.STARTED : ApiStates.NOT_STARTED)
   const [error, setError] = useState<Error | null>(null)
   const [data, setData] = useState<T | undefined>()
-  const { token } = useAuth()
 
   const getApi = useCallback(async () => {
     const { url } = params
 
-    return fetch(`${API_ROOT}/${url}`, {
-      headers: {
-        ...token && { Authorization: `Bearer ${token}` }
-      }
-    })
-  }, [params, token])
+    return fetch(`${API_ROOT}/${url}`)
+  }, [params])
 
   useEffect(() => {
     if (apiState !== ApiStates.STARTED) return
@@ -55,7 +49,6 @@ export const useGet = <T extends any>(params: useGetParams) => {
         }
 
         setData(await parseResponseData(res))
-
         setApiState(ApiStates.FINISHED)
       })
       .catch((error: Error) => {
@@ -67,7 +60,7 @@ export const useGet = <T extends any>(params: useGetParams) => {
   const startFetching = useCallback(() => setApiState(ApiStates.STARTED), [])
 
   return {
-    isLoading: apiState === ApiStates.RUNNING,
+    isLoading: [ApiStates.RUNNING, ApiStates.STARTED].includes(apiState),
     startFetching,
     apiState,
     error,
@@ -85,7 +78,6 @@ export const usePost = <T extends any>(params: usePostParams) => {
   const [error, setError] = useState<Error | null>(null)
   const [data, setData] = useState<T | null>(null)
   const [body, setBody] = useState(params.body)
-  const { token } = useAuth()
 
   const postApi = useCallback(async () => {
     const { url, contentType = 'application/json' } = params
@@ -93,12 +85,11 @@ export const usePost = <T extends any>(params: usePostParams) => {
     return fetch(`${API_ROOT}/${url}`, {
       method: 'POST',
       headers: {
-        ...token && { Authorization: `Bearer ${token}` },
         'Content-Type': contentType
       },
       body
     })
-  }, [params, token, body])
+  }, [params, body])
 
   useEffect(() => {
     if (apiState !== ApiStates.STARTED) return
@@ -129,7 +120,7 @@ export const usePost = <T extends any>(params: usePostParams) => {
   return {
     startFetching,
     apiState,
-    isLoading: apiState === ApiStates.RUNNING,
+    isLoading: [ApiStates.RUNNING, ApiStates.STARTED].includes(apiState),
     error,
     data
   }

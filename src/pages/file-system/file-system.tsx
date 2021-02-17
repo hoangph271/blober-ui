@@ -9,12 +9,19 @@ import { FSList } from './fs-list'
 import { basename } from '../../utils'
 import { FSItem, OptionalClassname } from '../../interfaces'
 
+const getPreviewUrl = (itemPath: string) => {
+  return `${API_ROOT}/files/preview?path=${encodeURIComponent(itemPath)}`
+}
+const getRawUrl = (itemPath: string) => {
+  return `${API_ROOT}/files/raw?path=${encodeURIComponent(itemPath)}`
+}
+
 type FSItemCardProps = {
   fsItem: FSItem
   onClick?(itemPath: string): void
 } & OptionalClassname
 const FSItemCard = (props: FSItemCardProps) => {
-  const { fsItem } = props
+  const { fsItem, className } = props
   const [isOpen, setIsOpen] = useState(false)
 
   if (isOpen) {
@@ -28,28 +35,60 @@ const FSItemCard = (props: FSItemCardProps) => {
           height: '300px',
           margin: '1rem'
         }}
-        src={`${API_ROOT}/files/raw?path=${encodeURIComponent(fsItem.itemPath)}`}
+        src={getRawUrl(fsItem.itemPath)}
       />
     )
   }
 
-  return fsItem.isDir ? (
-    <Link
-      to={`?path=${encodeURIComponent(fsItem.itemPath)}`}
-    >
-      <Card
-        title={basename(fsItem.itemPath)}
-        coverUrl={`${API_ROOT}/files/preview?path=${encodeURIComponent(fsItem.itemPath)}`}
-      />
-    </Link>
-  ) : (
+  if (fsItem.isDir) {
+    return (
+      <Link
+        className={className}
+        to={`?path=${encodeURIComponent(fsItem.itemPath)}`}
+      >
+        <Card
+          className="folder-card"
+          title={basename(fsItem.itemPath)}
+          coverUrl={getPreviewUrl(fsItem.itemPath)}
+        />
+      </Link>
+    )
+  }
+
+  return (
     <Card
+      className={`${className} file-card`}
       title={basename(fsItem.itemPath)}
       onClick={() => setIsOpen(true)}
-      coverUrl={`${API_ROOT}/files/preview?path=${encodeURIComponent(fsItem.itemPath)}`}
-    />
+      coverUrl={getPreviewUrl(fsItem.itemPath)}
+    >
+      <a
+        onClick={e => e.stopPropagation()}
+        className="download-link"
+        download
+        href={`${API_ROOT}/files/raw?path=${encodeURIComponent(fsItem.itemPath)}`}
+      >
+        {'Download'}
+      </a>
+    </Card>
   )
 }
+
+const StyledFSItemCard = styled(FSItemCard)`
+  .folder-card {
+    background-size: 5rem;
+    background-position: center;
+  }
+
+  .file-card {
+    position: relative;
+
+    .download-link {
+      position: absolute;
+      top:  0;
+    }
+  }
+`
 
 type DISPLAY_TYPE = 'GRID' | 'LIST'
 type AdaptiveFolderViewProps = {
@@ -79,7 +118,7 @@ const AdaptiveFolderView = (props: AdaptiveFolderViewProps) => {
     return (
       <ScrollableGrid>
         {fsItems.map(fsItem => (
-          <FSItemCard key={fsItem.itemPath} fsItem={fsItem} />
+          <StyledFSItemCard key={fsItem.itemPath} fsItem={fsItem} />
         ))}
       </ScrollableGrid>
     )

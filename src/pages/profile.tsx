@@ -3,10 +3,12 @@ import { Redirect } from 'react-router'
 import { useAuth } from '../hooks'
 
 export const Profile = () => {
-  const { clearToken, isAuthed } = useAuth()
+  const { isAuthed, revokeAuth } = useAuth()
   const handleSignOut = useCallback(() => {
-    clearToken()
-  }, [clearToken])
+    document.cookie = ''
+    console.info(document.cookie)
+    revokeAuth()
+  }, [])
 
   if (!isAuthed) return <Redirect to="login" />
 

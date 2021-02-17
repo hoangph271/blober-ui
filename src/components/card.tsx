@@ -1,3 +1,4 @@
+import { FunctionComponent } from 'react'
 import styled from 'styled-components'
 import { OptionalClassname } from '../interfaces'
 
@@ -6,8 +7,8 @@ type CardProps = {
   coverUrl: string
   onClick?(): void
 } & OptionalClassname
-const Card = (props: CardProps) => {
-  const { className, title, coverUrl, onClick } = props
+const Card: FunctionComponent<CardProps> = (props) => {
+  const { className, title, coverUrl, onClick, children } = props
 
   return (
     <figure
@@ -17,6 +18,7 @@ const Card = (props: CardProps) => {
         backgroundImage: `url(${coverUrl})`
       }}
     >
+      {children}
       <figcaption className="card-title">
         {title}
       </figcaption>
@@ -28,6 +30,7 @@ const StyledCard = styled(Card)`
   width: 300px;
   height: 300px;
   background-size: cover;
+  background-repeat: no-repeat;
   background-position-x: center;
   background-position-y: top;
   position: relative;

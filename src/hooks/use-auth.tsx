@@ -1,36 +1,52 @@
-import { createContext, ReactChild, ReactChildren, useContext, useState } from 'react'
+import { createContext, ReactChild, ReactChildren, useCallback, useContext, useEffect, useState } from 'react'
+import { useGet, usePost } from './use-apis'
+
+type AuthResponse = {
+  token: string
+}
 
 type AuthContextProviderProps = {
   children: ReactChildren | ReactChild
 }
 type AuthContextValue = {
-  token: string | null,
-  storeToken(token: string): void,
-  clearToken(): void,
-  isAuthed: boolean,
+  isAuthed: boolean
+  isLoading: boolean
+  revokeAuth(): void
+  attemptLogin(username: string, password: string): void
 }
-const STORAGE_TOKEN_KEY = 'STORAGE_TOKEN_KEY'
 const AuthContext = createContext<AuthContextValue>((null as unknown) as AuthContextValue)
 export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
-  const [token, setToken] = useState<string | null>(sessionStorage.getItem(STORAGE_TOKEN_KEY))
+  const [isAuthed, setIsAuthed] = useState(false)
+  const getAuth = useGet({ url: 'auth', initRun: true })
+  const postAuth = usePost<AuthResponse>({ url: 'auth', initRun: false })
 
-  const storeToken = (token: string) => {
-    setToken(token)
-    sessionStorage.setItem(STORAGE_TOKEN_KEY, token)
-    document.cookie = `Authentication=${token}`
-  }
+  const revokeAuth = useCallback(() => {
+    getAuth.startFetching()
+  }, [getAuth])
 
-  const clearToken = () => {
-    setToken(null)
-    sessionStorage.removeItem(STORAGE_TOKEN_KEY)
-    document.cookie = ''
-  }
+  useEffect(() => {
+    if (postAuth.isLoading) return
+
+    if (postAuth.data) {
+      const { token } = postAuth.data
+      document.cookie = `Authentication=${token}`
+      revokeAuth()
+    }
+  }, [postAuth, revokeAuth])
+
+  useEffect(() => {
+    if (getAuth.isLoading) return
+    setIsAuthed(!!getAuth.data)
+  }, [getAuth])
 
   const value: AuthContextValue = {
-    token,
-    storeToken,
-    clearToken,
-    isAuthed: Boolean(token)
+    isAuthed,
+    isLoading: getAuth.isLoading || postAuth.isLoading,
+    revokeAuth,
+    attemptLogin (username: string, password: string) {
+      const body = JSON.stringify({ username, password })
+      postAuth.startFetching(body)
+    }
   }
 
   return (
