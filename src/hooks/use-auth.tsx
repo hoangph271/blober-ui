@@ -1,5 +1,5 @@
 import { createContext, ReactChild, ReactChildren, useCallback, useContext, useEffect, useState } from 'react'
-import { useGet, usePost } from './use-apis'
+import { ApiStates, useGet, usePost } from './use-apis'
 import Cookies from 'js-cookie'
 
 type AuthResponse = {
@@ -27,11 +27,12 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   }, [getAuth.isLoading, getAuth.data])
 
   useEffect(() => {
+    if (postAuth.apiState === ApiStates.NOT_STARTED) return
     if (postAuth.isLoading) return
 
     setIsAuthed(!!postAuth.data)
     Cookies.set('Authentication', postAuth.data?.token ?? '')
-  }, [postAuth.isLoading, postAuth.data])
+  }, [postAuth.isLoading, postAuth.data, postAuth.apiState])
 
   const signOut = useCallback(() => {
     Cookies.remove('Authentication')
