@@ -48,10 +48,12 @@ export const useGet = <T extends any>(params: useGetParams) => {
           throw new Error(await res.text())
         }
 
+        setError(null)
         setData(await parseResponseData(res))
         setApiState(ApiStates.FINISHED)
       })
       .catch((error: Error) => {
+        setData(undefined)
         setError(error)
         setApiState(ApiStates.ERROR)
       })
@@ -102,11 +104,12 @@ export const usePost = <T extends any>(params: usePostParams) => {
           throw new Error(await res.text())
         }
 
+        setError(null)
         setData(await parseResponseData(res))
-
         setApiState(ApiStates.FINISHED)
       })
       .catch((error: Error) => {
+        setData(null)
         setError(error)
         setApiState(ApiStates.ERROR)
       })

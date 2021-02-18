@@ -3,11 +3,11 @@ import { useAuth } from '../hooks'
 export const LoginForm = () => {
   const [username, setUsername] = useState('username')
   const [password, setPassword] = useState('password')
-  const { isLoading, attemptLogin } = useAuth()
+  const { isLoading, signIn } = useAuth()
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    attemptLogin(username, password)
+    signIn(username, password)
   }
 
   return (

@@ -53,6 +53,7 @@ const StyledCard = styled(Card)`
     padding: 0.2rem 0;
     bottom: 0;
     top: unset;
+    word-break: break-all;
   }
 `
 

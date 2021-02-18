@@ -1,20 +1,16 @@
-import { useCallback } from 'react'
 import { Redirect } from 'react-router'
 import { useAuth } from '../hooks'
 
 export const Profile = () => {
-  const { isAuthed, revokeAuth } = useAuth()
-  const handleSignOut = useCallback(() => {
-    document.cookie = ''
-    console.info(document.cookie)
-    revokeAuth()
-  }, [])
+  const { isAuthed, signOut } = useAuth()
 
-  if (!isAuthed) return <Redirect to="login" />
-
-  return (
+  return isAuthed ? (
     <section>
-      <button onClick={handleSignOut}>Sign out</button>
+      <button onClick={signOut}>
+        {'Sign out'}
+      </button>
     </section>
+  ) : (
+    <Redirect to="login" />
   )
 }
