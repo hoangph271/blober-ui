@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import { API_ROOT } from '../../constants'
-import { Card, ScrollableGrid, FullGrowLoader, Pager } from '../../components'
+import { Card, ScrollableGrid, FullGrowLoader, Pager, withDefaultHeader } from '../../components'
 import { usePagedList } from '../../hooks/use-paged-list'
 import { Album } from '../../interfaces'
 
@@ -62,7 +62,7 @@ const AlbumsList = ({ className = '' }: AlbumsListProps) => {
   )
 }
 
-const StyledAlbumList = styled(AlbumsList)`
+const StyledAlbumList = styled(withDefaultHeader(AlbumsList))`
   height: 100vh;
   max-height: 100vh;
   max-width: 100vw;

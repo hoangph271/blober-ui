@@ -27,8 +27,9 @@ const Card: FunctionComponent<CardProps> = (props) => {
 }
 
 const StyledCard = styled(Card)`
-  width: 300px;
-  height: 300px;
+  width: 20rem;
+  height: 20rem;
+  max-width: 100%;
   background-size: cover;
   background-repeat: no-repeat;
   background-position-x: center;
@@ -42,6 +43,11 @@ const StyledCard = styled(Card)`
     cursor: pointer;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.6);
     transform: scale(1.04);
+
+    .card-title {
+      text-decoration: underline;
+      font-weight: bold;
+    }
   }
 
   .card-title {

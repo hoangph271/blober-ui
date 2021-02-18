@@ -4,7 +4,7 @@ import { useLocation } from 'react-router'
 import { Link } from 'react-router-dom'
 import { Card, ScrollableGrid, FullGrowLoader, withAuthRequired } from '../../components'
 import { useGet } from '../../hooks/use-apis'
-import { API_ROOT } from '../../constants'
+import { API_ROOT, devices } from '../../constants'
 import { FSList } from './fs-list'
 import { basename } from '../../utils'
 import { FSItem, OptionalClassname } from '../../interfaces'
@@ -30,11 +30,8 @@ const FSItemCard = (props: FSItemCardProps) => {
         muted
         controls
         autoPlay
-        style={{
-          width: '300px',
-          height: '300px',
-          margin: '1rem'
-        }}
+        className={`${className} preview-card`}
+        style={{ margin: '1rem' }}
         src={getRawUrl(fsItem.itemPath)}
       />
     )
@@ -75,6 +72,18 @@ const FSItemCard = (props: FSItemCardProps) => {
 }
 
 const StyledFSItemCard = styled(FSItemCard)`
+  .file-card, .folder-card, .preview-card {
+    width: 8rem;
+    height: 8rem;
+  }
+
+  @media ${devices.tablet} {
+    .file-card, .folder-card, .preview-card {
+      width: 15rem;
+      height: 15rem;
+    }
+  }
+
   .folder-card {
     background-size: 5rem;
     background-position: center;

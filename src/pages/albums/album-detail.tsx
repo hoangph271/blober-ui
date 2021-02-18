@@ -1,5 +1,7 @@
 import Loader from 'react-loader-spinner'
 import { useParams } from 'react-router-dom'
+import styled from 'styled-components'
+import { withDefaultHeader } from '../../components'
 import { API_ROOT, CAMO_URL } from '../../constants'
 import { useGet } from '../../hooks/use-apis'
 import { Album } from '../../interfaces'
@@ -7,7 +9,7 @@ import { Album } from '../../interfaces'
 type AlbumDetailRouteParams = {
   id: string,
 }
-export const AlbumDetail = () => {
+const AlbumDetail = () => {
   const { id } = useParams<AlbumDetailRouteParams>()
   const { isLoading, data } = useGet<Album>({ url: `albums/${id}`, initRun: true })
 
@@ -28,3 +30,8 @@ export const AlbumDetail = () => {
     </div>
   )
 }
+
+const StyledAlbumDetail = styled(withDefaultHeader(AlbumDetail))`
+`
+
+export { StyledAlbumDetail as AlbumDetail }
