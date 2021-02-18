@@ -1,7 +1,8 @@
 import { Redirect } from 'react-router'
+import { withDefaultHeader } from '../components'
 import { useAuth } from '../hooks'
 
-export const Profile = () => {
+const Profile = () => {
   const { isAuthed, signOut } = useAuth()
 
   return isAuthed ? (
@@ -14,3 +15,7 @@ export const Profile = () => {
     <Redirect to="login" />
   )
 }
+
+const ProfileWithHeader = withDefaultHeader(Profile)
+
+export { ProfileWithHeader as Profile }
