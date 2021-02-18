@@ -20,5 +20,7 @@ export type Album = {
 export type FSItem = {
   isDir: boolean
   itemPath: string
+  rootPath: string
   mime: string
+  children?: FSItem[]
 }

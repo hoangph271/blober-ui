@@ -25,7 +25,7 @@ function App ({ className = '' }: AppProps) {
           <Route path="/albums" component={withAuthRequired(Views.AlbumsList)} />
           <Route path="/login" component={Views.Login} />
           <Route path="/profile" component={Views.Profile} />
-          <Route path="/" exact component={withDefaultHeader(Views.FileSystem)} />
+          <Route path="/files" component={withDefaultHeader(Views.FileSystem)} />
           <Route component={() => '404 | Not Found' as unknown as any} />
         </Switch>
       </BrowserRouter>

@@ -4,21 +4,24 @@ import { OptionalClassname } from '../interfaces'
 
 type CardProps = {
   title: string
-  coverUrl: string
+  coverUrls: string[]
   onClick?(): void
 } & OptionalClassname
 const Card: FunctionComponent<CardProps> = (props) => {
-  const { className, title, coverUrl, onClick, children } = props
+  const { className, title, coverUrls, onClick, children } = props
+  const backgroundImage = coverUrls.map((url) => `url("${url}")`).join(', ')
 
   return (
     <figure
       onClick={onClick}
       className={className}
-      style={{
-        backgroundImage: `url(${coverUrl})`
-      }}
     >
-      {children}
+      <div
+        className="card-cover"
+        style={{ backgroundImage }}
+      >
+        {children}
+      </div>
       <figcaption className="card-title">
         {title}
       </figcaption>
@@ -27,17 +30,36 @@ const Card: FunctionComponent<CardProps> = (props) => {
 }
 
 const StyledCard = styled(Card)`
+  margin: 1rem;
   width: 20rem;
   height: 20rem;
-  max-width: 100%;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position-x: center;
-  background-position-y: top;
-  position: relative;
-  margin: 1rem;
+  display: flex;
+  border-radius: 0.4rem;
+  flex-direction: column;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.4);
-  border-radius: 0.1rem;
+
+  .card-cover {
+    flex-grow: 1;
+    flex-basis: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  .card-title {
+    background-color: rgba(125, 125, 125, 0.25);
+    text-align: center;
+    line-height: 2rem;
+    height: 2rem;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    padding: 0.2rem 0.5rem;
+    border-bottom-left-radius: 0.4rem;
+    border-bottom-right-radius: 0.4rem;
+  }
 
   &:hover {
     cursor: pointer;
@@ -48,18 +70,6 @@ const StyledCard = styled(Card)`
       text-decoration: underline;
       font-weight: bold;
     }
-  }
-
-  .card-title {
-    color: black;
-    position: absolute;
-    width: 100%;
-    text-align: center;
-    background-color: rgba(255, 255, 255, 0.65);
-    padding: 0.2rem 0;
-    bottom: 0;
-    top: unset;
-    word-break: break-all;
   }
 `
 

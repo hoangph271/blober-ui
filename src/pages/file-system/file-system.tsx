@@ -9,9 +9,33 @@ import { FSList } from './fs-list'
 import { basename } from '../../utils'
 import { FSItem, OptionalClassname } from '../../interfaces'
 
-const getPreviewUrl = (itemPath: string) => {
+const _getGenericPreviewFile = (fsItem: FSItem) => {
+  fsItem.mime = fsItem.mime ?? ''
+
+  switch (true) {
+    case fsItem.mime.startsWith('video/'):
+      return 'video.svg'
+    case fsItem.mime === 'application/pdf':
+      return 'file-pdf.svg'
+    default:
+      return 'file-binary.svg'
+  }
+}
+const _getGenericPreviewUrl = (fsItem: FSItem) => `/icons/${_getGenericPreviewFile(fsItem)}`
+const _getPreviewUrl = (itemPath: string) => {
   return `${API_ROOT}/files/preview?path=${encodeURIComponent(itemPath)}`
 }
+const getPreviewUrls = (fsItem: FSItem) => {
+  if (fsItem.isDir) {
+    return ['/icons/folder.svg']
+  }
+
+  return [
+    _getPreviewUrl(fsItem.itemPath),
+    _getGenericPreviewUrl(fsItem)
+  ]
+}
+
 const getRawUrl = (itemPath: string) => {
   return `${API_ROOT}/files/raw?path=${encodeURIComponent(itemPath)}`
 }
@@ -25,28 +49,38 @@ const FSItemCard = (props: FSItemCardProps) => {
   const [isOpen, setIsOpen] = useState(false)
 
   if (isOpen) {
-    return (
-      <video
-        muted
-        controls
-        autoPlay
-        className={`${className} preview-card`}
-        style={{ margin: '1rem' }}
-        src={getRawUrl(fsItem.itemPath)}
-      />
-    )
+    switch (true) {
+      case fsItem.mime.startsWith('video/'):
+        return (
+          <Card
+            className={`${className} file-card`}
+            title={basename(fsItem.itemPath)}
+            coverUrls={[]}
+          >
+            <video
+              style={{
+                maxWidth: '100%'
+              }}
+              muted
+              controls
+              autoPlay
+              src={getRawUrl(fsItem.itemPath)}
+            />
+          </Card>
+        )
+    }
   }
 
   if (fsItem.isDir) {
     return (
       <Link
         className={className}
-        to={`?path=${encodeURIComponent(fsItem.itemPath)}`}
+        to={`/files/${encodeURIComponent(fsItem.itemPath)}`}
       >
         <Card
           className="folder-card"
           title={basename(fsItem.itemPath)}
-          coverUrl={getPreviewUrl(fsItem.itemPath)}
+          coverUrls={getPreviewUrls(fsItem)}
         />
       </Link>
     )
@@ -56,8 +90,10 @@ const FSItemCard = (props: FSItemCardProps) => {
     <Card
       className={`${className} file-card`}
       title={basename(fsItem.itemPath)}
-      onClick={() => setIsOpen(true)}
-      coverUrl={getPreviewUrl(fsItem.itemPath)}
+      onClick={() => {
+        setIsOpen(true)
+      }}
+      coverUrls={getPreviewUrls(fsItem)}
     >
       <a
         onClick={e => e.stopPropagation()}
@@ -72,24 +108,26 @@ const FSItemCard = (props: FSItemCardProps) => {
 }
 
 const StyledFSItemCard = styled(FSItemCard)`
-  .file-card, .folder-card, .preview-card {
+  color: black;
+  text-decoration: none;
+
+  &:hover, &:visited {
+    color: black;
+  }
+
+  &.file-card, .folder-card, .preview-card {
     width: 8rem;
     height: 8rem;
   }
 
   @media ${devices.tablet} {
-    .file-card, .folder-card, .preview-card {
+    &.file-card, .folder-card, .preview-card {
       width: 15rem;
       height: 15rem;
     }
   }
 
-  .folder-card {
-    background-size: 5rem;
-    background-position: center;
-  }
-
-  .file-card {
+  &.file-card {
     position: relative;
 
     .download-link {
@@ -102,10 +140,10 @@ const StyledFSItemCard = styled(FSItemCard)`
 type DISPLAY_TYPE = 'GRID' | 'LIST'
 type AdaptiveFolderViewProps = {
   displayType: DISPLAY_TYPE
-  fsItems: FSItem[]
+  fsItem: FSItem
 } & OptionalClassname
 const AdaptiveFolderView = (props: AdaptiveFolderViewProps) => {
-  const { displayType, fsItems } = props
+  const { displayType, fsItem } = props
   const [openUrl, setOpenUrl] = useState('')
 
   const handleItemClicked = (itemPath: string) => {
@@ -113,20 +151,23 @@ const AdaptiveFolderView = (props: AdaptiveFolderViewProps) => {
   }
 
   if (openUrl) {
-    return (
-      <video
-        muted
-        controls
-        autoPlay
-        src={`${API_ROOT}/files/raw?path=${encodeURIComponent(openUrl)}`}
-      />
-    )
+    switch (true) {
+      case fsItem.mime.startsWith('video/'):
+        return (
+          <video
+            muted
+            controls
+            autoPlay
+            src={`${API_ROOT}/files/raw?path=${encodeURIComponent(openUrl)}`}
+          />
+        )
+    }
   }
 
   if (displayType === 'GRID') {
     return (
       <ScrollableGrid>
-        {fsItems.map(fsItem => (
+        {(fsItem.children ?? []).map(fsItem => (
           <StyledFSItemCard key={fsItem.itemPath} fsItem={fsItem} />
         ))}
       </ScrollableGrid>
@@ -134,7 +175,7 @@ const AdaptiveFolderView = (props: AdaptiveFolderViewProps) => {
   }
 
   return (
-    <FSList fsItems={fsItems} onClick={handleItemClicked} />
+    <FSList fsItems={fsItem.children ?? []} onClick={handleItemClicked} />
   )
 }
 
@@ -144,7 +185,7 @@ type FolderViewProps = {
 const FolderView = (props: FolderViewProps) => {
   const { path, className } = props
   const [displayType] = useState<DISPLAY_TYPE>('GRID')
-  const { data = [], isLoading } = useGet<FSItem[]>({
+  const { data, isLoading } = useGet<FSItem>({
     url: `/files?path=${encodeURIComponent(path)}`,
     initRun: true
   })
@@ -152,9 +193,9 @@ const FolderView = (props: FolderViewProps) => {
   return isLoading ? (
     <FullGrowLoader />
   ) : (
-    <section className={className}>
-      <AdaptiveFolderView displayType={displayType} fsItems={data} />
-    </section>
+    <main className={className}>
+      <AdaptiveFolderView displayType={displayType} fsItem={data as FSItem} />
+    </main>
   )
 }
 
@@ -162,8 +203,15 @@ const StyledFolderView = styled(FolderView)`
 `
 
 export const FileSystem = withAuthRequired(() => {
-  const { search } = useLocation()
-  const path = new URLSearchParams(search).get('path') || ''
+  const { pathname } = useLocation()
+  const path = pathname === '/files'
+    ? ''
+    : pathname.replace('/files/', '')
 
-  return <StyledFolderView path={path} key={path} />
+  return (
+    <StyledFolderView
+      key={pathname}
+      path={decodeURIComponent(path)}
+    />
+  )
 })

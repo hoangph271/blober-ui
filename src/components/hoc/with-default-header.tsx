@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { OptionalClassname } from '../../interfaces'
 
 const headerNavs = [
-  { to: '/', title: 'Files' },
+  { to: '/files', title: 'Files' },
   { to: '/albums', title: 'Albums' },
   { to: '/profile', title: 'Profile' }
 ]

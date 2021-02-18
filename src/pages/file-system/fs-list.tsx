@@ -1,8 +1,6 @@
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import { ScrollableList } from '../../components'
-import folderSvg from './folder.svg'
-import fileSvg from './file.svg'
 import { basename } from '../../utils'
 import { FSItem, OptionalClassname } from '../../interfaces'
 
@@ -19,7 +17,7 @@ const FSList = (props: FSListProps) => {
         <li key={fsItem.itemPath} className="fs-item">
           <img
             className="generic-icon"
-            src={fsItem.isDir ? folderSvg : fileSvg}
+            src={''}
           />
           {fsItem.isDir ? (
             <Link
