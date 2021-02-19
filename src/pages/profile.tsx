@@ -12,7 +12,7 @@ const Profile = () => {
       </button>
     </section>
   ) : (
-    <Redirect to="login" />
+    <Redirect to="/login" />
   )
 }
 

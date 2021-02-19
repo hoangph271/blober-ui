@@ -122,8 +122,8 @@ const StyledFSItemCard = styled(FSItemCard)`
 
   @media ${devices.tablet} {
     &.file-card, .folder-card, .preview-card {
-      width: 15rem;
-      height: 15rem;
+      width: 12rem;
+      height: 12rem;
     }
   }
 

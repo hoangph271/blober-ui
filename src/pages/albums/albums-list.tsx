@@ -46,7 +46,7 @@ const AlbumsList = ({ className = '' }: AlbumsListProps) => {
               <Card
                 title={album.title}
                 className="album-card"
-                coverUrls={[`${API_ROOT}/blobs/preview/${album.pics[0]?.blobId}`]}
+                coverUrls={[`${API_ROOT}/blobs/raw/${album.pics[0]?.blobId}`]}
               />
             </Link>
           ))}

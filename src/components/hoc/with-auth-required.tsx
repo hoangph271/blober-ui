@@ -14,7 +14,7 @@ export const withAuthRequired = <T extends any>(Component: ComponentType<T>) => 
     return isAuthed ? (
       <Component {...props as any} />
     ) : (
-      <Redirect to="login" />
+      <Redirect to="/login" />
     )
   }
 }

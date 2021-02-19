@@ -9,7 +9,7 @@ const withAuthRequired = (View: ComponentType<any>) => {
   return () => {
     const { isAuthed } = useAuth()
 
-    return isAuthed ? <View /> : <Redirect to="login" />
+    return isAuthed ? <View /> : <Redirect to="/login" />
   }
 }
 
@@ -26,7 +26,7 @@ function App ({ className = '' }: AppProps) {
           <Route path="/login" component={Views.Login} />
           <Route path="/profile" component={Views.Profile} />
           <Route path="/files" component={withDefaultHeader(Views.FileSystem)} />
-          <Route component={() => '404 | Not Found' as unknown as any} />
+          <Route component={() => <Redirect to="/files" />} />
         </Switch>
       </BrowserRouter>
     </div>
