@@ -2,7 +2,7 @@ import { useState } from 'react'
 import styled from 'styled-components'
 import { useLocation } from 'react-router'
 import { Link } from 'react-router-dom'
-import { Card, ScrollableGrid, FullGrowLoader, withAuthRequired } from '../../components'
+import { Card, ScrollableGrid, FullGrowLoader, withAuthRequired, withDefaultHeader } from '../../components'
 import { useGet } from '../../hooks/use-apis'
 import { API_ROOT, devices } from '../../constants'
 import { FSList } from './fs-list'
@@ -125,8 +125,8 @@ type AdaptiveFolderViewProps = {
   displayType: DISPLAY_TYPE
   fsItem: FSItem
 } & OptionalClassname
-const AdaptiveFolderView = (props: AdaptiveFolderViewProps) => {
-  const { displayType, fsItem } = props
+const AdaptiveFolderView = styled((props: AdaptiveFolderViewProps) => {
+  const { displayType, fsItem, className } = props
   const [openUrl, setOpenUrl] = useState('')
 
   const handleItemClicked = (itemPath: string) => {
@@ -141,6 +141,7 @@ const AdaptiveFolderView = (props: AdaptiveFolderViewProps) => {
             muted
             controls
             autoPlay
+            className={className}
             src={`${API_ROOT}/files/raw?path=${encodeURIComponent(openUrl)}`}
           />
         )
@@ -149,7 +150,7 @@ const AdaptiveFolderView = (props: AdaptiveFolderViewProps) => {
 
   if (displayType === 'GRID') {
     return (
-      <ScrollableGrid>
+      <ScrollableGrid className={className}>
         {(fsItem.children ?? []).map(fsItem => (
           <StyledFSItemCard key={fsItem.itemPath} fsItem={fsItem} />
         ))}
@@ -160,7 +161,9 @@ const AdaptiveFolderView = (props: AdaptiveFolderViewProps) => {
   return (
     <FSList fsItems={fsItem.children ?? []} onClick={handleItemClicked} />
   )
-}
+})`
+  max-height: 100vh;
+`
 
 type FolderViewProps = {
   path: string,
@@ -185,7 +188,7 @@ const FolderView = (props: FolderViewProps) => {
 const StyledFolderView = styled(FolderView)`
 `
 
-export const FileSystem = withAuthRequired(() => {
+export const FileSystem = withDefaultHeader(withAuthRequired((props: any) => {
   const { pathname } = useLocation()
   const path = pathname === '/files'
     ? ''
@@ -193,8 +196,9 @@ export const FileSystem = withAuthRequired(() => {
 
   return (
     <StyledFolderView
+      { ...props }
       key={pathname}
       path={decodeURIComponent(path)}
     />
   )
-})
+}))
