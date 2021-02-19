@@ -34,12 +34,14 @@ const DefaultHeader: FunctionComponent<DefaultHeaderProps> = (props) => {
 const StyledDefaultHeader = styled(DefaultHeader)`
   display: flex;
   justify-content: space-around;
+  padding: 0.4rem;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.62);
 
   .nav-bar {
     flex-basis: 0;
     flex-grow: 1;
     display: flex;
-     justify-content: space-evenly;
+    justify-content: space-evenly;
 
     .nav-url {
       color: black;
