@@ -95,14 +95,6 @@ const FSItemCard = (props: FSItemCardProps) => {
       }}
       coverUrls={getPreviewUrls(fsItem)}
     >
-      <a
-        onClick={e => e.stopPropagation()}
-        className="download-link"
-        download
-        href={`${API_ROOT}/files/raw?path=${encodeURIComponent(fsItem.itemPath)}`}
-      >
-        {'Download'}
-      </a>
     </Card>
   )
 }
@@ -124,15 +116,6 @@ const StyledFSItemCard = styled(FSItemCard)`
     &.file-card, .folder-card, .preview-card {
       width: 12rem;
       height: 12rem;
-    }
-  }
-
-  &.file-card {
-    position: relative;
-
-    .download-link {
-      position: absolute;
-      top:  0;
     }
   }
 `

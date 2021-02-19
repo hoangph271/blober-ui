@@ -59,6 +59,7 @@ const StyledCard = styled(Card)`
     padding: 0.2rem 0.5rem;
     border-bottom-left-radius: 0.4rem;
     border-bottom-right-radius: 0.4rem;
+    border-top:1px solid rgba(0, 0, 0, 0.62);
   }
 
   &:hover {

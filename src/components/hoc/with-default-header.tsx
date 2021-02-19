@@ -54,11 +54,30 @@ const StyledDefaultHeader = styled(DefaultHeader)`
     }
   }
 `
+
+const ViewWithHeader: FunctionComponent<OptionalClassname> = (props) => {
+  const { children, className } = props
+  return (
+    <div className={className}>
+      <StyledDefaultHeader className="header" />
+      {children}
+    </div>
+  )
+}
+const StyledViewWithHeader = styled(ViewWithHeader)`
+  display: flex;
+  flex-direction: column;
+
+  :nth-child(2) {
+    flex-basis: 0;
+    flex-grow: 1;
+  }
+`
+
 export const withDefaultHeader = <T extends any>(Component: ComponentType<T>) => {
   return (props: T) => (
-    <div>
-      <StyledDefaultHeader />
-      <Component {...props as any} />
-    </div>
+    <StyledViewWithHeader>
+      <Component {...props as any } />
+    </StyledViewWithHeader>
   )
 }
