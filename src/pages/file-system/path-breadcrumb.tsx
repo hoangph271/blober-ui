@@ -1,9 +1,8 @@
-import { basename } from 'node:path'
 import { useState, useCallback, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { FSItem, OptionalClassname } from '../../interfaces'
-import { hash } from '../../utils'
+import { basename, hash } from '../../utils'
 
 type FSNameId = {
   _id: string
