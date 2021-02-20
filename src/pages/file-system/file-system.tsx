@@ -43,7 +43,6 @@ const AdaptiveFolderView = styled((props: AdaptiveFolderViewProps) => {
     <FSList fsItems={fsItem.children ?? []} onClick={handleItemClicked} />
   )
 })`
-  max-height: 100vh;
 `
 
 type FolderViewProps = {
@@ -65,6 +64,8 @@ const FolderView = (props: FolderViewProps) => {
 }
 
 const StyledFolderView = styled(FolderView)`
+  display: flex;
+  flex-direction: column;
 `
 
 export const FileSystem = withDefaultHeader(withAuthRequired((props: any) => {

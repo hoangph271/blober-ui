@@ -87,14 +87,18 @@ const FSGrid = (props: FSGridProps) => {
     : []
 
   return (
-    <ScrollableGrid className={className}>
-      {childFSItems.map(fsItem => (
-        <StyledFSItemCard key={fsItem._id} fsItem={fsItem} />
-      ))}
-    </ScrollableGrid>
+    <div className={className}>
+      <ScrollableGrid>
+        {childFSItems.map(fsItem => (
+          <StyledFSItemCard key={fsItem._id} fsItem={fsItem} />
+        ))}
+      </ScrollableGrid>
+    </div>
   )
 }
 
 const StyledFSGrid = styled(FSGrid)`
+  display: flex;
+  min-height: 0px;
 `
 export { StyledFSGrid as FSGrid }

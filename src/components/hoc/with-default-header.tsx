@@ -68,9 +68,13 @@ const StyledViewWithHeader = styled(ViewWithHeader)`
   display: flex;
   flex-direction: column;
 
-  :nth-child(2) {
-    flex-basis: 0;
-    flex-grow: 1;
+  .header {
+    height: 4rem;
+    align-items: center;
+  }
+
+  & > :not(.header) {
+    height: calc(100vh - 4rem);
   }
 `
 
