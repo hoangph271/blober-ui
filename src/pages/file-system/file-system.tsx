@@ -35,7 +35,6 @@ const getPreviewUrls = (fsItem: FSItem) => {
   ]
 }
 
-// TODO: Use template...?
 const getRawUrl = (_id: string) => `${API_ROOT}/files/raw/${_id}`
 
 type FSItemCardProps = {
@@ -170,10 +169,6 @@ const AdaptiveFolderView = styled((props: AdaptiveFolderViewProps) => {
   max-height: 100vh;
 `
 
-// const ab2str = (buffer: ArrayBuffer) => {
-//   const codes = new Uint16Array(buffer)
-//   return String.fromCharCode(...(codes as any))
-// }
 const str2ab = (inStr: string) => {
   const blob = new Blob([inStr], { type: 'text/plain' })
 
