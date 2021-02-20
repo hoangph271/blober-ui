@@ -28,9 +28,7 @@ const PathBreadcrumb = (props: PathBreadcrumbProps) => {
     })
 
     const fsNameIds = [
-      ...path ? [{
-        _id: await hash(rootPath), name: `${basename(rootPath)}${seperator}`
-      }] : [],
+      { _id: await hash(rootPath), name: `${basename(rootPath)}${seperator}` },
       ...await Promise.all(ancestorPaths.map(async path => ({
         _id: await hash(path),
         name: `${basename(path)}${seperator}`
