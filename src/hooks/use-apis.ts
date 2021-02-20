@@ -10,7 +10,7 @@ export enum ApiStates {
   ERROR,
 }
 
-const parseResponseData = async (res: Response) => {
+const parseBody = async (res: Response) => {
   const contentType = res.headers.get('content-type')
   switch (true) {
     case contentType?.startsWith('application/json;'): {
@@ -22,19 +22,38 @@ const parseResponseData = async (res: Response) => {
   }
 }
 
+type HttpBody = string | Blob | ArrayBufferView | ArrayBuffer | FormData | URLSearchParams | ReadableStream<Uint8Array> | null
 type useGetParams = {
   url: string,
   initRun?: boolean,
 }
+
+export const getApi = (url: string) => fetch(`${API_ROOT}/${url}`)
+type postApiOptionalParams = {
+  body?: HttpBody,
+  contentType?: 'application/json'
+}
+export const postApi = (
+  url: string,
+  optionals?: postApiOptionalParams) => {
+  const { contentType = 'application/json', body } = optionals ?? {}
+
+  return fetch(`${API_ROOT}/${url}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': contentType
+    },
+    body
+  })
+}
+
 export const useGet = <T extends any>(params: useGetParams) => {
   const [apiState, setApiState] = useState<ApiStates>(params.initRun ? ApiStates.STARTED : ApiStates.NOT_STARTED)
   const [error, setError] = useState<Error | null>(null)
   const [data, setData] = useState<T | undefined>()
 
-  const getApi = useCallback(async () => {
-    const { url } = params
-
-    return fetch(`${API_ROOT}/${url}`)
+  const fetch = useCallback(async () => {
+    return getApi(params.url)
   }, [params])
 
   useEffect(() => {
@@ -42,14 +61,14 @@ export const useGet = <T extends any>(params: useGetParams) => {
 
     setApiState(ApiStates.RUNNING)
 
-    getApi()
+    fetch()
       .then(async (res) => {
         if (!res.ok) {
           throw new Error(await res.text())
         }
 
         setError(null)
-        setData(await parseResponseData(res))
+        setData(await parseBody(res))
         setApiState(ApiStates.FINISHED)
       })
       .catch((error: Error) => {
@@ -70,7 +89,6 @@ export const useGet = <T extends any>(params: useGetParams) => {
   }
 }
 
-type HttpBody = string | Blob | ArrayBufferView | ArrayBuffer | FormData | URLSearchParams | ReadableStream<Uint8Array> | null
 type usePostParams = useGetParams & {
   body?: HttpBody,
   contentType?: 'application/json'
@@ -81,16 +99,10 @@ export const usePost = <T extends any>(params: usePostParams) => {
   const [data, setData] = useState<T | null>(null)
   const [body, setBody] = useState(params.body)
 
-  const postApi = useCallback(async () => {
+  const fetch = useCallback(async () => {
     const { url, contentType = 'application/json' } = params
 
-    return fetch(`${API_ROOT}/${url}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': contentType
-      },
-      body
-    })
+    return postApi(url, { contentType })
   }, [params, body])
 
   useEffect(() => {
@@ -98,14 +110,14 @@ export const usePost = <T extends any>(params: usePostParams) => {
 
     setApiState(ApiStates.RUNNING)
 
-    postApi()
+    fetch()
       .then(async (res) => {
         if (!res.ok) {
           throw new Error(await res.text())
         }
 
         setError(null)
-        setData(await parseResponseData(res))
+        setData(await parseBody(res))
         setApiState(ApiStates.FINISHED)
       })
       .catch((error: Error) => {

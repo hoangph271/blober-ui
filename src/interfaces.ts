@@ -18,9 +18,11 @@ export type Album = {
 }
 
 export type FSItem = {
+  _id: string
+  path: string
+  fullPath: string
+  mime?: string
+  size?: number
   isDir: boolean
-  itemPath: string
-  rootPath: string
-  mime: string
   children?: FSItem[]
 }

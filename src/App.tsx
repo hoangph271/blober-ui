@@ -24,7 +24,7 @@ function App ({ className = '' }: AppProps) {
           <Route path="/albums" component={withAuthRequired(Views.AlbumsList)} />
           <Route path="/login" component={Views.Login} />
           <Route path="/profile" component={Views.Profile} />
-          <Route path="/files" component={Views.FileSystem} />
+          <Route path="/files/:_id?" component={Views.FileSystem} />
           <Route component={() => <Redirect to="/files" />} />
         </Switch>
       </BrowserRouter>

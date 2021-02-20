@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { useLocation } from 'react-router'
+import { useParams } from 'react-router'
 import { Link } from 'react-router-dom'
 import { Card, ScrollableGrid, FullGrowLoader, withAuthRequired, withDefaultHeader } from '../../components'
 import { useGet } from '../../hooks/use-apis'
@@ -10,35 +10,33 @@ import { basename } from '../../utils'
 import { FSItem, OptionalClassname } from '../../interfaces'
 
 const _getGenericPreviewFile = (fsItem: FSItem) => {
-  fsItem.mime = fsItem.mime ?? ''
-
-  switch (true) {
-    case fsItem.mime.startsWith('video/'):
-      return 'video.svg'
-    case fsItem.mime === 'application/pdf':
-      return 'file-pdf.svg'
-    default:
-      return 'file-binary.svg'
+  if (fsItem.mime) {
+    switch (true) {
+      case fsItem.mime.startsWith('video/'):
+        return 'video.svg'
+      case fsItem.mime === 'application/pdf':
+        return 'file-pdf.svg'
+    }
   }
+
+  return 'file-binary.svg'
 }
 const _getGenericPreviewUrl = (fsItem: FSItem) => `/icons/${_getGenericPreviewFile(fsItem)}`
-const _getPreviewUrl = (itemPath: string) => {
-  return `${API_ROOT}/files/preview?path=${encodeURIComponent(itemPath)}`
-}
+const _getPreviewUrl = (_id: string) => `${API_ROOT}/files/preview/${_id}`
+
 const getPreviewUrls = (fsItem: FSItem) => {
   if (fsItem.isDir) {
     return ['/icons/folder.svg']
   }
 
   return [
-    _getPreviewUrl(fsItem.itemPath),
+    _getPreviewUrl(fsItem._id),
     _getGenericPreviewUrl(fsItem)
   ]
 }
 
-const getRawUrl = (itemPath: string) => {
-  return `${API_ROOT}/files/raw?path=${encodeURIComponent(itemPath)}`
-}
+// TODO: Use template...?
+const getRawUrl = (_id: string) => `${API_ROOT}/files/raw/${_id}`
 
 type FSItemCardProps = {
   fsItem: FSItem
@@ -50,11 +48,11 @@ const FSItemCard = (props: FSItemCardProps) => {
 
   if (isOpen) {
     switch (true) {
-      case fsItem.mime.startsWith('video/'):
+      case fsItem.mime?.startsWith('video/'):
         return (
           <Card
             className={`${className} file-card`}
-            title={basename(fsItem.itemPath)}
+            title={basename(fsItem.path)}
             coverUrls={[]}
           >
             <video
@@ -64,7 +62,7 @@ const FSItemCard = (props: FSItemCardProps) => {
               muted
               controls
               autoPlay
-              src={getRawUrl(fsItem.itemPath)}
+              src={getRawUrl(fsItem._id)}
             />
           </Card>
         )
@@ -75,11 +73,11 @@ const FSItemCard = (props: FSItemCardProps) => {
     return (
       <Link
         className={className}
-        to={`/files/${encodeURIComponent(fsItem.itemPath)}`}
+        to={`/files/${fsItem._id}`}
       >
         <Card
           className="folder-card"
-          title={basename(fsItem.itemPath)}
+          title={basename(fsItem.path)}
           coverUrls={getPreviewUrls(fsItem)}
         />
       </Link>
@@ -89,7 +87,7 @@ const FSItemCard = (props: FSItemCardProps) => {
   return (
     <Card
       className={`${className} file-card`}
-      title={basename(fsItem.itemPath)}
+      title={basename(fsItem.path)}
       onClick={() => {
         setIsOpen(true)
       }}
@@ -127,32 +125,39 @@ type AdaptiveFolderViewProps = {
 } & OptionalClassname
 const AdaptiveFolderView = styled((props: AdaptiveFolderViewProps) => {
   const { displayType, fsItem, className } = props
-  const [openUrl, setOpenUrl] = useState('')
+  const [openId, setOpenId] = useState('')
 
-  const handleItemClicked = (itemPath: string) => {
-    setOpenUrl(itemPath)
+  const handleItemClicked = (_id: string) => {
+    setOpenId(_id)
   }
 
-  if (openUrl) {
+  if (openId) {
     switch (true) {
-      case fsItem.mime.startsWith('video/'):
+      case fsItem.mime?.startsWith('video/'):
         return (
           <video
             muted
             controls
             autoPlay
             className={className}
-            src={`${API_ROOT}/files/raw?path=${encodeURIComponent(openUrl)}`}
+            src={`${API_ROOT}/files/raw/${openId}`}
           />
         )
     }
   }
 
   if (displayType === 'GRID') {
+    const childFSItems = fsItem.children
+      ? [
+          ...fsItem.children.filter(fsItem => fsItem.isDir),
+          ...fsItem.children.filter(fsItem => !fsItem.isDir)
+        ]
+      : []
+
     return (
       <ScrollableGrid className={className}>
-        {(fsItem.children ?? []).map(fsItem => (
-          <StyledFSItemCard key={fsItem.itemPath} fsItem={fsItem} />
+        {childFSItems.map(fsItem => (
+          <StyledFSItemCard key={fsItem._id} fsItem={fsItem} />
         ))}
       </ScrollableGrid>
     )
@@ -165,21 +170,83 @@ const AdaptiveFolderView = styled((props: AdaptiveFolderViewProps) => {
   max-height: 100vh;
 `
 
+// const ab2str = (buffer: ArrayBuffer) => {
+//   const codes = new Uint16Array(buffer)
+//   return String.fromCharCode(...(codes as any))
+// }
+const str2ab = (inStr: string) => {
+  const blob = new Blob([inStr], { type: 'text/plain' })
+
+  return blob.arrayBuffer()
+}
+
+const hexEncode = (buffer: ArrayBuffer) => {
+  return Array.prototype.map.call(new Uint8Array(buffer), (byte) => {
+    return ('0' + (byte & 0xFF).toString(16)).slice(-2)
+  }).join('')
+}
+
+const hash = async (inStr: string) => {
+  const buffer = await window.crypto.subtle.digest('SHA-256', await str2ab(inStr))
+  return hexEncode(buffer)
+}
+
+type FSNameId = {
+  _id: string
+  name: string
+}
+type PathBreadcrumbProps = {
+  fsItem: FSItem
+} & OptionalClassname
+const PathBreadcrumb = (props: PathBreadcrumbProps) => {
+  const { fsItem } = props
+  const { fullPath, path } = fsItem
+
+  const [fsNameIds, setFsNameIds] = useState<FSNameId[]>([])
+
+  const calculateFSNameIds = useCallback(async () => {
+    const rootPath = fullPath.replace(path, '')
+
+    const fsNameIds = path
+      ? [
+          { _id: await hash(rootPath), name: basename(rootPath) }
+        ]
+      : [
+        ]
+
+    setFsNameIds(fsNameIds)
+  }, [])
+
+  useEffect(() => { calculateFSNameIds() }, [calculateFSNameIds])
+
+  return (
+    <div>
+      <Link to="/files" key="" >{'/'}</Link>
+      {fsNameIds.map(({ _id, name }) => (
+        <Link
+          key={_id}
+          to={`/files/${_id}`}
+        >
+          {name}
+        </Link>
+      ))}
+    </div>
+  )
+}
+
 type FolderViewProps = {
-  path: string,
+  _id: string,
 } & OptionalClassname
 const FolderView = (props: FolderViewProps) => {
-  const { path, className } = props
+  const { _id, className } = props
   const [displayType] = useState<DISPLAY_TYPE>('GRID')
-  const { data, isLoading } = useGet<FSItem>({
-    url: `/files?path=${encodeURIComponent(path)}`,
-    initRun: true
-  })
+  const { data, isLoading } = useGet<FSItem>({ url: `/files/${_id}`, initRun: true })
 
   return isLoading ? (
     <FullGrowLoader />
   ) : (
     <main className={className}>
+      <PathBreadcrumb fsItem={data as FSItem} />
       <AdaptiveFolderView displayType={displayType} fsItem={data as FSItem} />
     </main>
   )
@@ -189,16 +256,13 @@ const StyledFolderView = styled(FolderView)`
 `
 
 export const FileSystem = withDefaultHeader(withAuthRequired((props: any) => {
-  const { pathname } = useLocation()
-  const path = pathname === '/files'
-    ? ''
-    : pathname.replace('/files/', '')
+  const { _id = '' } = useParams() as any
 
   return (
     <StyledFolderView
       { ...props }
-      key={pathname}
-      path={decodeURIComponent(path)}
+      _id={_id}
+      key={_id}
     />
   )
 }))

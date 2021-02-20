@@ -14,20 +14,20 @@ const FSList = (props: FSListProps) => {
   return (
     <ScrollableList className={className}>
       {fsItems.map(fsItem => (
-        <li key={fsItem.itemPath} className="fs-item">
+        <li key={fsItem._id} className="fs-item">
           <img
             className="generic-icon"
             src={''}
           />
           {fsItem.isDir ? (
             <Link
-              to={`?path=${encodeURIComponent(fsItem.itemPath)}`}
+              to={`/files/${fsItem._id}`}
             >
-              {basename(fsItem.itemPath)}
+              {basename(fsItem.path)}
             </Link>
           ) : (
-            <div onClick={() => onClick?.(fsItem.itemPath)}>
-              {basename(fsItem.itemPath)}
+            <div onClick={() => onClick?.(fsItem._id)}>
+              {basename(fsItem.path)}
             </div>
           )}
         </li>

@@ -1,7 +1,7 @@
-export const basename = (itemPath: string) => {
-  if (itemPath.startsWith('/')) {
-    return itemPath.split('/').pop() || itemPath
+export const basename = (fullPath: string) => {
+  if (fullPath.startsWith('/')) {
+    return fullPath.split('/').pop() || fullPath
   }
 
-  return itemPath.split('\\').pop() || itemPath
+  return fullPath.split('\\').pop() || fullPath
 }
