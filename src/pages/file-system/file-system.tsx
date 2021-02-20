@@ -22,25 +22,45 @@ const AdaptiveFolderView = styled((props: AdaptiveFolderViewProps) => {
     setOpenId(_id)
   }
 
-  if (openId) {
-    switch (true) {
-      case fsItem.mime?.startsWith('video/'):
-        return (
+  return (
+    <>
+      {openId && (
+        <dialog
+          open={!!openId}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100vh',
+            width: '100vw',
+            border: 'none',
+            padding: 0,
+            margin: 0,
+            position: 'absolute',
+            zIndex: 1,
+            justifyContent: 'center',
+            gap: '1rem',
+            top: 0
+          }}
+        >
+          <button onClick={(e) => setOpenId('')}>
+            {'Close'}
+          </button>
           <video
             muted
             controls
             autoPlay
             className={className}
+            style={{ maxWidth: '100%' }}
             src={`${API_ROOT}/files/raw/${openId}`}
           />
-        )
-    }
-  }
-
-  return displayType === 'GRID' ? (
-    <FSGrid fsItem={fsItem} className={className} />
-  ) : (
-    <FSList fsItems={fsItem.children ?? []} onClick={handleItemClicked} />
+        </dialog>
+      )}
+      {displayType === 'GRID' ? (
+        <FSGrid fsItem={fsItem} onClick={handleItemClicked} className={className} />
+      ) : (
+        <FSList fsItems={fsItem.children ?? []} onClick={handleItemClicked} />
+      )}
+    </>
   )
 })`
 `

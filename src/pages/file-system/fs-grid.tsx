@@ -1,39 +1,16 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { Card, ScrollableGrid } from '../../components'
 import { devices } from '../../constants'
 import { FSItem, OptionalClassname } from '../../interfaces'
-import { basename, getPreviewUrls, getRawUrl } from '../../utils'
+import { basename, getPreviewUrls } from '../../utils'
 
 type FSItemCardProps = {
   fsItem: FSItem
-  onClick?(itemPath: string): void
+  onClick?(_id: string): void
 } & OptionalClassname
 const FSItemCard = (props: FSItemCardProps) => {
-  const { fsItem, className } = props
-  const [isOpen, setIsOpen] = useState(false)
-
-  if (isOpen) {
-    switch (true) {
-      case fsItem.mime?.startsWith('video/'):
-        return (
-          <Card
-            className={`${className} file-card`}
-            title={basename(fsItem.path)}
-            coverUrls={[]}
-          >
-            <video
-              muted
-              controls
-              autoPlay
-              src={getRawUrl(fsItem._id)}
-              style={{ maxWidth: '100%' }}
-            />
-          </Card>
-        )
-    }
-  }
+  const { fsItem, className, onClick } = props
 
   return fsItem.isDir ? (
     <Link
@@ -51,7 +28,7 @@ const FSItemCard = (props: FSItemCardProps) => {
       className={`${className} file-card`}
       title={basename(fsItem.path)}
       coverUrls={getPreviewUrls(fsItem)}
-      onClick={() => { setIsOpen(true) }}
+      onClick={() => onClick?.(fsItem._id)}
     />
   )
 }
@@ -76,9 +53,10 @@ const StyledFSItemCard = styled(FSItemCard)`
 
 type FSGridProps = {
   fsItem: FSItem
+  onClick?(_id: string): void,
 } & OptionalClassname
 const FSGrid = (props: FSGridProps) => {
-  const { className, fsItem } = props
+  const { className, fsItem, onClick } = props
   const childFSItems = fsItem.children
     ? [
         ...fsItem.children.filter(fsItem => fsItem.isDir),
@@ -90,7 +68,11 @@ const FSGrid = (props: FSGridProps) => {
     <div className={className}>
       <ScrollableGrid>
         {childFSItems.map(fsItem => (
-          <StyledFSItemCard key={fsItem._id} fsItem={fsItem} />
+          <StyledFSItemCard
+            key={fsItem._id}
+            fsItem={fsItem}
+            onClick={onClick}
+          />
         ))}
       </ScrollableGrid>
     </div>
