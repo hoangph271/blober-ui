@@ -50,6 +50,7 @@ const StyledCard = styled(Card)`
   }
 
   .card-title {
+    word-break: break-all;
     background-color: rgba(125, 125, 125, 0.25);
     text-align: center;
     line-height: 2rem;
