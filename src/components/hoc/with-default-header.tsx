@@ -13,7 +13,7 @@ const DefaultHeader: FunctionComponent<DefaultHeaderProps> = (props) => {
   const { className } = props
 
   return (
-    <header className={className}>
+    <header className={`${className} inset-shadow`}>
       <ul className="nav-bar">
         {headerNavs.map(nav => (
           <NavLink
@@ -35,7 +35,6 @@ const StyledDefaultHeader = styled(DefaultHeader)`
   display: flex;
   justify-content: space-around;
   padding: 0.4rem;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.62);
 
   .nav-bar {
     flex-basis: 0;

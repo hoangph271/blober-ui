@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import filesize from 'filesize'
 import { FSItem, OptionalClassname } from '../../interfaces'
 import { FullviewDialog } from '../../components'
-import { basename, getRawUrl } from '../../utils'
+import { basename, getPreviewUrls, getRawUrl } from '../../utils'
 
 type DetailLineProps = {
   label: string
@@ -15,17 +15,20 @@ const DetailLine = styled((props: DetailLineProps) => {
 
   return (
     <tr className={className}>
-      <th className="label">{label}</th>
+      <th>
+        <div className="label">{label}</div>
+      </th>
       <td className="detail">{detail}</td>
     </tr>
   )
 })`
   .label {
-    display: flex;
+    width: 100%;
     text-align: right;
   }
 
   .detail {
+    text-align: left;
     word-break: break-word;
   }
 `
@@ -45,6 +48,7 @@ const FileDetail = styled((props: FileDetailProps) => {
     </table>
   )
 })`
+  width: 100%;
 `
 
 type FileViewerProps = {
@@ -66,9 +70,18 @@ const FileViewer = (props: FileViewerProps) => {
   }
 
   return (
-    <div>
-      {`File can't be viewed...! :"(`}
-    </div>
+    <div
+      style={{
+        width: '15rem',
+        height: '15rem',
+        maxWidth: '90%',
+        margin: 'auto',
+        backgroundSize: 'contain',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundImage: getPreviewUrls(fsItem).map((url) => `url("${url}")`).join(', ')
+      }}
+    />
   )
 }
 
@@ -96,29 +109,29 @@ const FileviewDialog = (props: FileviewDialogProps) => {
       className={className}
       onRequestClose={handleCloseFile}
     >
-      <div className="title-bar">
+      <div className="title-bar inset-shadow">
         <div className="title">{basename(fsItem.fullPath)}</div>
         <button className="close-button" onClick={handleCloseFile}>
           {'❌'}
         </button>
       </div>
-      <FileViewer fsItem={fsItem} />
-      <FileDetail fsItem={fsItem} />
-      <a
-        href={getRawUrl(fsItem._id)}
-        className="download-link"
-        download={basename(fsItem.fullPath)}
-      >
-        {'Download'}
-      </a>
+      <div className="detail-view">
+        <FileViewer fsItem={fsItem} />
+        <FileDetail fsItem={fsItem} />
+        <a
+          href={getRawUrl(fsItem._id)}
+          className="download-link"
+          download={basename(fsItem.fullPath)}
+        >
+          {'Download'}
+        </a>
+      </div>
     </FullviewDialog>
   ) : null
 }
 
 const StyledFileViewDialog = styled(FileviewDialog)`
   .dialog-content {
-    padding: 0.4rem;
-    padding-top: 0;
     background-color: white;
     border-radius: 0.4rem;
   }
@@ -130,7 +143,7 @@ const StyledFileViewDialog = styled(FileviewDialog)`
     justify-content: center;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.1rem 0.4rem;
+    padding: 0.2rem 0.4rem;
 
     .title {
       text-overflow: ellipsis;
@@ -153,8 +166,14 @@ const StyledFileViewDialog = styled(FileviewDialog)`
     }
   }
 
-  .download-link {
+  .detail-view {
+    padding: 0.4rem;
     text-align: center;
+
+    .download-link {
+      display: block;
+      text-align: center;
+    }
   }
 `
 

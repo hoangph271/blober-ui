@@ -22,7 +22,7 @@ const FullviewDialog: FunctionComponent<FullviewDialogProps> = (props) => {
     >
       <div
         ref={contentRef}
-        className="dialog-content"
+        className="dialog-content inset-shadow"
       >
         {children}
       </div>

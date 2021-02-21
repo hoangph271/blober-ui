@@ -21,6 +21,7 @@ const StyledScrollableGrid = styled(ScrollableGrid)`
   align-items: center;
   flex-wrap: wrap;
   max-width: 100vw;
+  flex-grow: 1;
 `
 
 export { StyledScrollableGrid as ScrollableGrid }

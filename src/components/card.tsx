@@ -15,7 +15,7 @@ const Card: FunctionComponent<CardProps> = (props) => {
   return (
     <figure
       onClick={onClick}
-      className={className}
+      className={`${className} inset-shadow`}
     >
       <div
         className="card-cover"
@@ -35,7 +35,6 @@ const StyledCard = styled(Card)`
   display: flex;
   border-radius: 0.4rem;
   flex-direction: column;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.4);
   width: 10rem;
   height: 10rem;
   max-width: calc(50% - 1rem);
@@ -56,6 +55,7 @@ const StyledCard = styled(Card)`
     flex-grow: 1;
     flex-basis: 0;
     display: flex;
+    border-radius: 0.4rem;
     justify-content: center;
     align-items: center;
     background-size: cover;
@@ -79,7 +79,6 @@ const StyledCard = styled(Card)`
 
   &:hover {
     cursor: pointer;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.6);
     transform: scale(1.04);
 
     .card-title {
