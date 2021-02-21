@@ -1,5 +1,6 @@
 import { FunctionComponent } from 'react'
 import styled from 'styled-components'
+import { devices } from '../constants'
 import { OptionalClassname } from '../interfaces'
 
 type CardProps = {
@@ -31,12 +32,25 @@ const Card: FunctionComponent<CardProps> = (props) => {
 
 const StyledCard = styled(Card)`
   margin: 1rem;
-  width: 20rem;
-  height: 20rem;
   display: flex;
   border-radius: 0.4rem;
   flex-direction: column;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.4);
+  width: 10rem;
+  height: 10rem;
+  max-width: calc(50% - 1rem);
+  margin: 0.4rem;
+
+  @media ${devices.mobileL} {
+    width: 14rem;
+    height: 14rem;
+  }
+
+  @media ${devices.tablet} {
+    width: 18rem;
+    height: 18rem;
+    margin: 1rem;
+  }
 
   .card-cover {
     flex-grow: 1;

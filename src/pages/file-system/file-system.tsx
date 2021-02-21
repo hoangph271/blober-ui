@@ -8,6 +8,7 @@ import { FSItem, OptionalClassname } from '../../interfaces'
 import { FSGrid } from './fs-grid'
 import { PathBreadcrumb } from './path-breadcrumb'
 import { FileViewDialog } from './fileview-dialog'
+import { useLocation } from 'react-router-dom'
 
 type DISPLAY_TYPE = 'GRID' | 'LIST'
 type AdaptiveFolderViewProps = {
@@ -16,10 +17,14 @@ type AdaptiveFolderViewProps = {
 } & OptionalClassname
 const AdaptiveFolderView = styled((props: AdaptiveFolderViewProps) => {
   const { displayType, fsItem, className } = props
+  const { search } = useLocation()
+  const openItemId = new URLSearchParams(search).get('openItemId')
 
   return (
     <>
-      <FileViewDialog />
+      <FileViewDialog
+        fsItem={fsItem.children?.find(item => item._id === openItemId)}
+      />
       {displayType === 'GRID' ? (
         <FSGrid fsItem={fsItem} className={className} />
       ) : (

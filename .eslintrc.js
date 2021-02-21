@@ -23,6 +23,7 @@ module.exports = {
     'react/react-in-jsx-scope': 0,
     'react/display-name': 0,
     'multiline-ternary': 0,
-    'react/prop-types': 0
+    'react/prop-types': 0,
+    quotes: 0
   }
 }

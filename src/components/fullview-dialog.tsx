@@ -1,23 +1,29 @@
-import { FunctionComponent } from 'react'
+import { FunctionComponent, useRef } from 'react'
 import styled from 'styled-components'
-import { useKeyup } from '../hooks'
+import { useClickOutside, useKeyup } from '../hooks'
 import { OptionalClassname } from '../interfaces'
 import { noOp } from '../utils'
 
 type FullviewDialogProps = {
   open: boolean
-  onEscPressed?(): void
+  onRequestClose?(): void
 } & OptionalClassname
 const FullviewDialog: FunctionComponent<FullviewDialogProps> = (props) => {
-  const { open, children, className, onEscPressed = noOp } = props
-  useKeyup({ key: 'Escape', onKeypressed: onEscPressed })
+  const { open, children, className, onRequestClose = noOp } = props
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  useClickOutside(contentRef, onRequestClose)
+  useKeyup({ key: 'Escape', onKeypressed: onRequestClose })
 
   return (
     <dialog
       open={open}
       className={className}
     >
-      <div className="dialog-content">
+      <div
+        ref={contentRef}
+        className="dialog-content"
+      >
         {children}
       </div>
     </dialog>

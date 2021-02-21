@@ -1,7 +1,6 @@
-import { Link, useHistory, useLocation } from 'react-router-dom'
+import { useHistory, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 import { Card, ScrollableGrid } from '../../components'
-import { devices } from '../../constants'
 import { FSItem, OptionalClassname } from '../../interfaces'
 import { basename, getPreviewUrls } from '../../utils'
 
@@ -11,44 +10,23 @@ type FSItemCardProps = {
 } & OptionalClassname
 const FSItemCard = (props: FSItemCardProps) => {
   const { fsItem, className, onClick } = props
+  const history = useHistory()
 
-  return fsItem.isDir ? (
-    <Link
-      style={{ color: 'black' }}
-      to={`/files/${fsItem._id}`}
-    >
-      <Card
-        className={`${className} folder-card`}
-        title={basename(fsItem.path)}
-        coverUrls={getPreviewUrls(fsItem)}
-      />
-    </Link>
-  ) : (
+  return (
     <Card
       className={`${className} file-card`}
       title={basename(fsItem.path)}
       coverUrls={getPreviewUrls(fsItem)}
-      onClick={() => onClick?.(fsItem._id)}
+      onClick={() => {
+        fsItem.isDir
+          ? history.push(`/files/${fsItem._id}`)
+          : onClick?.(fsItem._id)
+      }}
     />
   )
 }
 
 const StyledFSItemCard = styled(FSItemCard)`
-  text-decoration: none;
-  margin: 0.4rem;
-
-  &.file-card, &.folder-card, .preview-card {
-    width: 11rem;
-    height: 11rem;
-  }
-
-  @media ${devices.tablet} {
-    &.file-card, &.folder-card, .preview-card {
-      width: 14rem;
-      height: 14rem;
-      margin: 1rem;
-    }
-  }
 `
 
 type FSGridProps = {
@@ -59,12 +37,10 @@ const FSGrid = (props: FSGridProps) => {
   const history = useHistory()
   const { search, pathname } = useLocation()
 
-  const childFSItems = fsItem.children
-    ? [
-        ...fsItem.children.filter(fsItem => fsItem.isDir),
-        ...fsItem.children.filter(fsItem => !fsItem.isDir)
-      ]
-    : []
+  const childFSItems = [
+    ...fsItem.children?.filter(fsItem => fsItem.isDir) || [],
+    ...fsItem.children?.filter(fsItem => !fsItem.isDir) || []
+  ]
 
   return (
     <div className={className}>
