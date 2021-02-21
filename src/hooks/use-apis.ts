@@ -102,7 +102,7 @@ export const usePost = <T extends any>(params: usePostParams) => {
   const fetch = useCallback(async () => {
     const { url, contentType = 'application/json' } = params
 
-    return postApi(url, { contentType })
+    return postApi(url, { contentType, body })
   }, [params, body])
 
   useEffect(() => {

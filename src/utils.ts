@@ -46,3 +46,5 @@ export const hash = async (inStr: string) => {
   const buffer = await window.crypto.subtle.digest('SHA-256', await str2ab(inStr))
   return hexEncode(buffer)
 }
+
+export const noOp = () => {}

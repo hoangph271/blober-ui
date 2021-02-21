@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useHistory, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 import { Card, ScrollableGrid } from '../../components'
 import { devices } from '../../constants'
@@ -53,10 +53,12 @@ const StyledFSItemCard = styled(FSItemCard)`
 
 type FSGridProps = {
   fsItem: FSItem
-  onClick?(_id: string): void,
 } & OptionalClassname
 const FSGrid = (props: FSGridProps) => {
-  const { className, fsItem, onClick } = props
+  const { className, fsItem } = props
+  const history = useHistory()
+  const { search, pathname } = useLocation()
+
   const childFSItems = fsItem.children
     ? [
         ...fsItem.children.filter(fsItem => fsItem.isDir),
@@ -71,7 +73,15 @@ const FSGrid = (props: FSGridProps) => {
           <StyledFSItemCard
             key={fsItem._id}
             fsItem={fsItem}
-            onClick={onClick}
+            onClick={() => {
+              const nextSearch = new URLSearchParams(search)
+              nextSearch.set('openItemId', fsItem._id)
+
+              history.replace({
+                pathname,
+                search: nextSearch.toString()
+              })
+            }}
           />
         ))}
       </ScrollableGrid>

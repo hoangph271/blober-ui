@@ -28,7 +28,7 @@ const PathBreadcrumb = (props: PathBreadcrumbProps) => {
     })
 
     const fsNameIds = [
-      { _id: await hash(rootPath), name: `${basename(rootPath)}${seperator}` },
+      { _id: '', name: `${basename(rootPath)}${seperator}` },
       ...await Promise.all(ancestorPaths.map(async path => ({
         _id: await hash(path),
         name: `${basename(path)}${seperator}`
@@ -42,9 +42,6 @@ const PathBreadcrumb = (props: PathBreadcrumbProps) => {
 
   return (
     <div className={className}>
-      {fullPath !== '' && (
-        <Link to="/files" key="" className="root-link" />
-      )}
       {fsNameIds.map(({ _id, name }) => (
         <Link
           key={_id}

@@ -3,11 +3,11 @@ import styled from 'styled-components'
 import { useParams } from 'react-router'
 import { FullGrowLoader, withAuthRequired, withDefaultHeader } from '../../components'
 import { useGet } from '../../hooks/use-apis'
-import { API_ROOT } from '../../constants'
 import { FSList } from './fs-list'
 import { FSItem, OptionalClassname } from '../../interfaces'
 import { FSGrid } from './fs-grid'
 import { PathBreadcrumb } from './path-breadcrumb'
+import { FileViewDialog } from './fileview-dialog'
 
 type DISPLAY_TYPE = 'GRID' | 'LIST'
 type AdaptiveFolderViewProps = {
@@ -16,49 +16,14 @@ type AdaptiveFolderViewProps = {
 } & OptionalClassname
 const AdaptiveFolderView = styled((props: AdaptiveFolderViewProps) => {
   const { displayType, fsItem, className } = props
-  const [openId, setOpenId] = useState('')
-
-  const handleItemClicked = (_id: string) => {
-    setOpenId(_id)
-  }
 
   return (
     <>
-      {openId && (
-        <dialog
-          open={!!openId}
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100vh',
-            width: '100vw',
-            border: 'none',
-            padding: 0,
-            margin: 0,
-            position: 'absolute',
-            zIndex: 1,
-            justifyContent: 'center',
-            gap: '1rem',
-            top: 0
-          }}
-        >
-          <button onClick={(e) => setOpenId('')}>
-            {'Close'}
-          </button>
-          <video
-            muted
-            controls
-            autoPlay
-            className={className}
-            style={{ maxWidth: '100%' }}
-            src={`${API_ROOT}/files/raw/${openId}`}
-          />
-        </dialog>
-      )}
+      <FileViewDialog />
       {displayType === 'GRID' ? (
-        <FSGrid fsItem={fsItem} onClick={handleItemClicked} className={className} />
+        <FSGrid fsItem={fsItem} className={className} />
       ) : (
-        <FSList fsItems={fsItem.children ?? []} onClick={handleItemClicked} />
+        <FSList fsItems={fsItem.children ?? []} />
       )}
     </>
   )
@@ -73,12 +38,20 @@ const FolderView = (props: FolderViewProps) => {
   const [displayType] = useState<DISPLAY_TYPE>('GRID')
   const { data, isLoading } = useGet<FSItem>({ url: `/files/${_id}`, initRun: true })
 
-  return isLoading ? (
-    <FullGrowLoader />
-  ) : (
+  if (isLoading) {
+    return <FullGrowLoader />
+  }
+
+  return (
     <main className={className}>
-      <PathBreadcrumb fsItem={data as FSItem} />
-      <AdaptiveFolderView displayType={displayType} fsItem={data as FSItem} />
+      {data ? (
+        <>
+          <PathBreadcrumb fsItem={data} />
+          <AdaptiveFolderView displayType={displayType} fsItem={data} />
+        </>
+      ) : (
+        <div>{'404 | Not Found'}</div>
+      )}
     </main>
   )
 }
