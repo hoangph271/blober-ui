@@ -1,5 +1,6 @@
 import { FunctionComponent, useRef } from 'react'
 import styled from 'styled-components'
+import { devices } from '../constants'
 import { useClickOutside, useKeyup } from '../hooks'
 import { OptionalClassname } from '../interfaces'
 import { noOp } from '../utils'
@@ -42,6 +43,7 @@ const StyledFullviewDialog = styled(FullviewDialog)`
   position: absolute;
   z-index: 1;
   justify-content: center;
+  align-items: center;
   gap: 1rem;
   padding: 0.6rem;
   top: 0;
@@ -49,6 +51,12 @@ const StyledFullviewDialog = styled(FullviewDialog)`
   .dialog-content {
     display: flex;
     flex-direction: column;
+  }
+
+  @media ${devices.tablet} {
+    .dialog-content {
+      width: 80%;
+    }
   }
 `
 

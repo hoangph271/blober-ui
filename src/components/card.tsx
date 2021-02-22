@@ -55,7 +55,8 @@ const StyledCard = styled(Card)`
     flex-grow: 1;
     flex-basis: 0;
     display: flex;
-    border-radius: 0.4rem;
+    border-top-left-radius: 0.4rem;
+    border-top-right-radius: 0.4rem;
     justify-content: center;
     align-items: center;
     background-size: cover;

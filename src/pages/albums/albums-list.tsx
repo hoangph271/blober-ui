@@ -1,8 +1,8 @@
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css'
 import { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
-import { Link } from 'react-router-dom'
-import { API_ROOT } from '../../constants'
+import { useHistory } from 'react-router-dom'
+import { API_ROOT, CAMO_URL } from '../../constants'
 import { Card, ScrollableGrid, FullGrowLoader, Pager, withDefaultHeader } from '../../components'
 import { usePagedList } from '../../hooks/use-paged-list'
 import { Album } from '../../interfaces'
@@ -15,6 +15,7 @@ const AlbumsList = ({ className = '' }: AlbumsListProps) => {
   const [pageCount, setPageCount] = useState(0)
   const [albums, setAlbums] = useState<Album[]>([])
   const albumListRef = useRef<HTMLDivElement>(null)
+  const history = useHistory()
 
   const handleRefreshed = () => {
     albumListRef.current?.scrollTo(0, 0)
@@ -39,16 +40,15 @@ const AlbumsList = ({ className = '' }: AlbumsListProps) => {
       ) : (
         <ScrollableGrid className="albums-list">
           {albums.map(album => (
-            <Link
-              to={`albums/${album._id}`}
+            <Card
               key={album._id}
-            >
-              <Card
-                title={album.title}
-                className="album-card"
-                coverUrls={[`${API_ROOT}/blobs/raw/${album.pics[0]?.blobId}`]}
-              />
-            </Link>
+              onClick={() => {
+                history.push(`albums/${album._id}`)
+              }}
+              title={album.title}
+              className="album-card"
+              coverUrls={[CAMO_URL || `${API_ROOT}/blobs/raw/${album.pics[0]?.blobId}`]}
+            />
           ))}
         </ScrollableGrid>
       )}
@@ -68,10 +68,6 @@ const StyledAlbumList = styled(withDefaultHeader(AlbumsList))`
   max-width: 100vw;
   display: flex;
   flex-direction: column;
-
-  .album-card {
-    height: 400px;
-  }
 `
 
 export { StyledAlbumList as AlbumsList }

@@ -5,6 +5,7 @@ import filesize from 'filesize'
 import { FSItem, OptionalClassname } from '../../interfaces'
 import { FullviewDialog } from '../../components'
 import { basename, getPreviewUrls, getRawUrl } from '../../utils'
+import { devices } from '../../constants'
 
 type DetailLineProps = {
   label: string
@@ -53,13 +54,14 @@ const FileDetail = styled((props: FileDetailProps) => {
 
 type FileViewerProps = {
   fsItem: FSItem
-}
-const FileViewer = (props: FileViewerProps) => {
-  const { fsItem } = props
+} & OptionalClassname
+const FileViewer = styled((props: FileViewerProps) => {
+  const { fsItem, className } = props
 
   if (fsItem.mime?.startsWith('video/')) {
     return (
       <video
+        className={className}
         muted
         controls
         autoPlay
@@ -71,19 +73,32 @@ const FileViewer = (props: FileViewerProps) => {
 
   return (
     <div
+      className={`${className} image-view`}
       style={{
-        width: '15rem',
-        height: '15rem',
-        maxWidth: '90%',
-        margin: 'auto',
-        backgroundSize: 'contain',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
         backgroundImage: getPreviewUrls(fsItem).map((url) => `url("${url}")`).join(', ')
       }}
     />
   )
-}
+})`
+  &.image-view {
+    margin: auto;
+    height: 20rem;
+    width: 20rem;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    @media ${devices.mobileM} {
+      height: 22rem;
+      width: 22rem;
+    }
+
+    @media ${devices.laptop} {
+      height: 40rem;
+      width: 40rem;
+    }
+  }
+`
 
 type FileviewDialogProps = {
   fsItem?: FSItem
