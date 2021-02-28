@@ -84,6 +84,7 @@ const FileViewer = styled((props: FileViewerProps) => {
     margin: auto;
     height: 20rem;
     width: 20rem;
+    max-width: calc(100vw - 1.4rem);
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;

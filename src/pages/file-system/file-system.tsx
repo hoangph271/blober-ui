@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useParams } from 'react-router'
 import { FullGrowLoader, withAuthRequired, withDefaultHeader } from '../../components'
@@ -8,6 +8,7 @@ import { FSItem, OptionalClassname } from '../../interfaces'
 import { FSGrid } from './fs-grid'
 import { PathBreadcrumb } from './path-breadcrumb'
 import { FileViewDialog } from './fileview-dialog'
+import naruto from 'animexyz'
 import { useLocation } from 'react-router-dom'
 
 type DISPLAY_TYPE = 'GRID' | 'LIST'
@@ -68,6 +69,8 @@ const StyledFolderView = styled(FolderView)`
 
 export const FileSystem = withDefaultHeader(withAuthRequired((props: any) => {
   const { _id = '' } = useParams() as any
+  const location = useLocation()
+  useEffect(() => naruto({ duration: 650, size: 65 }), [location])
 
   return (
     <StyledFolderView

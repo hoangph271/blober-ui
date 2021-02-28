@@ -42,6 +42,10 @@ code {
 }
 /* #endregion */
 
+body {
+  overflow: hidden;
+}
+
 #root {
   display: flex;
   max-height: 100vh;
